@@ -1,0 +1,15 @@
+README.txt
+setup.cfg
+setup.py
+plingback/__init__.py
+plingback/resources.py
+plingback/tests.py
+plingback/views.py
+plingback.egg-info/PKG-INFO
+plingback.egg-info/SOURCES.txt
+plingback.egg-info/dependency_links.txt
+plingback.egg-info/entry_points.txt
+plingback.egg-info/not-zip-safe
+plingback.egg-info/paster_plugins.txt
+plingback.egg-info/requires.txt
+plingback.egg-info/top_level.txt
