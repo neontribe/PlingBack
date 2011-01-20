@@ -1,0 +1,5 @@
+development.ini
+production.ini
+*.txt.py
+*.pyc
+.coverage

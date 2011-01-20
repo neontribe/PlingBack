@@ -1,0 +1,58 @@
+#!/home/neil/code/fastfeedback-gae/bin/python
+"""%prog [options]
+
+Perform some interaction with a Talis triplestore. This program can 
+either execute a SPARQL query from stdin or a given file (the default)
+behaviour and output pseudo-ntriples or else simply upload some RDF
+to the store.
+"""
+
+from optparse import OptionParser
+from sys import exit, stdin
+from talis import Talis
+import logging
+import rdflib
+
+if __name__ == '__main__':
+	op = OptionParser(usage=__doc__)
+	op.add_option("-s", "--store", help="Use the given Talis store", dest="store")
+	op.add_option("-u", "--username", help="Store username", dest="username", default=None)
+	op.add_option("-p", "--password", help="Store password", dest="password", default=None)
+	op.add_option("-q", "--query", help="Read query from file (default stdin)", dest="query", default=None)
+	op.add_option("-f", "--file", help="Read RDF to upload from file", dest="filename", default=None)
+	op.add_option("-v", "--verbose", help="Verbose", dest="verbose", action="store_true", default=False)
+	op.add_option("-l", "--logfile", help="Log to file", dest="logfile", default=None)
+
+	opts, args = op.parse_args()
+
+	if opts.verbose: level = logging.DEBUG
+	else: level = logging.ERROR
+	if opts.logfile: format = "%time %(name)s:%(levelname)s - %(message)s"
+	else: format = "%(name)s:%(levelname)s - %(message)s"
+	logging.basicConfig(
+		level=level,
+		format=format,
+		logfile=opts.logfile
+	)
+
+	t = Talis(opts.store, username=opts.username, password=opts.password)
+
+	if opts.query and opts.filename:
+		op.print_help()
+		exit(1)
+
+	if opts.filename:
+		fp = open(opts.filename, "r")
+		t.upload(fp.read())
+		fp.close()
+		exit(0)
+
+	if opts.query:
+		fp = open(opts.query, "r")
+	else:
+		fp = sys.stdin
+	q = fp.read()
+	fp.close()
+
+	for r in t.query(q):
+		print "\t".join(map(lambda x: x.n3(), r)) + " ."
