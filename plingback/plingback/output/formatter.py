@@ -37,11 +37,8 @@ class ResultFormatter(object):
     def _format_comments(self, output):
         comments = []
         for result in self.data['results']['bindings']:
-            try:
-                comments.append( {'text': str(result['item']['value']),
-                                  'activity': str(result['pling']['value'])} )
-            except ValueError:
-                pass
+            comments.append( {'text': str(result['item']['value']),
+                              'activity': str(result['pling']['value'])} )
         output['results'] = {}
         if comments:
             output['results']['comments'] = comments
@@ -71,7 +68,7 @@ class ResultFormatter(object):
         
     def format(self):
         if not self.sparql:
-            return data
+            return self.data
         else:
             output = {}
             output['queryScope'] = self.sparql.scope
