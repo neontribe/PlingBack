@@ -14,6 +14,7 @@ plingback.egg-info/paster_plugins.txt
 plingback.egg-info/requires.txt
 plingback.egg-info/top_level.txt
 plingback/output/__init__.py
+plingback/output/formatter.py
 plingback/output/views.py
 plingback/sparql/__init__.py
 plingback/sparql/tests.py

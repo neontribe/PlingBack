@@ -6,10 +6,16 @@ from plingback.output.formatter import ResultFormatter
 
 
 def handler(request):
+    sparql_template = request.matched_route.name
+    attribute = request.matchdict.get('attribute', None)
+    if attribute:
+        sparql_template = sparql_template.replace('attribute', attribute)
+    
     s_gen = SPARQLGenerator(
+                query_template=sparql_template,
                 scope=request.matchdict.get('scope', None),
                 id=request.matchdict.get('id', None),
-                attribute=request.matchdict.get('attribute', None),
+                attribute=attribute,
                 activity_dates=(request.params.get('from', None), request.params.get('to', None)),
                 submission_dates=(request.params.get('submitted_after', None), request.params.get('submitted_before', None)),
                 offset=request.params.get('offset', None),
@@ -18,8 +24,7 @@ def handler(request):
     sparql = s_gen.sparql()
     
     results = request.root.query_store(sparql)
+    
+    return ResultFormatter(results, s_gen).format()
 
-
-    #return ResultFormatter(results, s_gen).format()
-    return results
 

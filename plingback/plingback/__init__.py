@@ -9,7 +9,8 @@ namespaces = {
     "PB" : Namespace("http://plingback.plings.net/pb/"),
     "REV" : Namespace("http://purl.org/stuff/rev#"),
     "FOAF" : Namespace("http://xmlns.com/foaf/0.1/"),
-    "DC" : Namespace("http://purl.org/dc/elements/1.1/")
+    "DC" : Namespace("http://purl.org/dc/elements/1.1/"),
+    "ACTIVITIES" : Namespace("http://plings.net/a/")
     }
 
 def main(global_config, **settings):
@@ -18,20 +19,33 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     
     # Set up the output api
+    config.add_route('pling_attribute', 
+                     '/api/plings/{id}/{attribute}', 
+                     view='plingback.output.views.handler',
+                     view_renderer='json',
+                     request_method='GET',
+                     factory=OutputRoot)
     config.add_route('scoped_attribute', 
                      '/api/{scope}/{id}/{attribute}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
                      factory=OutputRoot)
-    config.add_route('count_for_scope', 
+    
+    config.add_route('scoped_plingback_count', 
                      '/api/{scope}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
                      factory=OutputRoot)
-    config.add_route('count_for_scoped_id', 
+    config.add_route('narrow_scoped_plingback_count', 
                      '/api/{scope}/{id}', 
+                     view='plingback.output.views.handler',
+                     view_renderer='json',
+                     request_method='GET',
+                     factory=OutputRoot)
+    config.add_route('pling_plingback_count', 
+                     '/api/plings/{id}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',

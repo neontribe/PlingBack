@@ -18,7 +18,8 @@ class SPARQLTests(unittest.TestCase):
 
 
     def test_scoped_rating_attribute(self):       
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_ratings',
+                              scope='authorities', 
                               id='33UF',
                               attribute='ratings')
         sparql = gen.sparql()
@@ -27,7 +28,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless("?plingback rev:rating ?item ." in sparql, "Item Collector Failure")
         
     def test_scoped_approval_attribute(self):       
-        gen = SPARQLGenerator(scope='LA', 
+        gen = SPARQLGenerator(query_template='scoped_approvals',
+                              scope='LA', 
                               id='33UF',
                               attribute='approvals')
         sparql = gen.sparql()
@@ -38,16 +40,41 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless("GROUP BY ?item" in sparql, "Grouping Failure")
         
     def test_pling_rating_attribute(self):
-        gen = SPARQLGenerator(scope='plings', 
-                              id='http://plings.net/a/12345',
+        gen = SPARQLGenerator(query_template='pling_ratings',
+                              scope='plings', 
+                              id='12345',
                               attribute='ratings')
         sparql = gen.sparql()
-        self.failUnless("?plingback pbo:isAbout <http://plings.net/a/12345> ." in sparql, 
-                        'Plingback Collector (single pling) failure')
+
+        self.failUnless("?plingback pbo:isAbout <http://plings.net/a/12345> ." in sparql)
         self.failUnless("?plingback rev:rating ?item ." in sparql, "Item Collector Failure")
         
+    def test_pling_comment_attribute(self):
+        gen = SPARQLGenerator(query_template='pling_comments',
+                              scope='plings', 
+                              id='12345',
+                              attribute='comments')
+        sparql = gen.sparql()
+
+        self.failUnless("?plingback pbo:isAbout <http://plings.net/a/12345> ." in sparql)
+        self.failUnless("?plingback rev:text ?item ." in sparql, "Item Collector Failure")
+        
+    def test_pling_approval_attribute(self):
+        gen = SPARQLGenerator(query_template='pling_approvals',
+                              scope='plings', 
+                              id='12345',
+                              attribute='comments')
+        sparql = gen.sparql()
+        
+        self.failUnless("?plingback pbo:isAbout <http://plings.net/a/12345> ." in sparql, 'Plingback Collector failure')
+        self.failUnless("?plingback pbo:approval ?inc ." in sparql, "Item Collector Failure")
+        self.failUnless("?plingback pbo:plingBackType ?item ." in sparql, "Item Collector Failure")
+        self.failUnless("GROUP BY ?item" in sparql, "Grouping Failure")
+        
+        
     def test_limit(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               limit=10)
@@ -55,7 +82,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('LIMIT 10' in sparql)
         
     def test_offset(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               offset=5)
@@ -63,7 +91,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('OFFSET 5' in sparql)
         
     def test_activity_date_filter_from(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               activity_dates=('2011-12-24', None))
@@ -72,7 +101,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('FILTER ( ?start > "2011-12-24T00:00:00Z"^^xsd:dateTime )' in sparql)
         
     def test_activity_date_filter_to(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               activity_dates=(None, '2012-01-05'))
@@ -81,7 +111,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('FILTER ( ?end < "2012-01-05T00:00:00Z"^^xsd:dateTime )' in sparql)
         
     def test_activity_date_filter_from_to(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               activity_dates=('2011-12-24', '2012-01-05'))
@@ -93,7 +124,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('&&' in sparql)
         
     def test_empty_activity_date_filter(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               activity_dates=(None, None))
@@ -101,7 +133,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('xsd:dateTime' not in sparql)
         
     def test_None_activity_date_filter(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               activity_dates=None)
@@ -109,7 +142,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('xsd:dateTime' not in sparql)
         
     def test_submission_date_filter_after(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               submission_dates=('2011-12-24', None))
@@ -118,7 +152,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('FILTER ( ?submitted > "2011-12-24T00:00:00Z"^^xsd:dateTime )' in sparql)
         
     def test_submission_date_filter_before(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               submission_dates=(None, '2012-01-05'))
@@ -127,7 +162,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('FILTER ( ?submitted < "2012-01-05T00:00:00Z"^^xsd:dateTime )' in sparql)
         
     def test_submission_date_filter_after_before(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               submission_dates=('2011-12-24', '2012-01-05'))
@@ -138,7 +174,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('&&' in sparql)
         
     def test_empty_submission_date_filter(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               submission_dates=(None, None))
@@ -146,7 +183,8 @@ class SPARQLTests(unittest.TestCase):
         self.failUnless('xsd:dateTime' not in sparql)
         
     def test_None_submission_date_filter(self):
-        gen = SPARQLGenerator(scope='authorities', 
+        gen = SPARQLGenerator(query_template='scoped_comments',
+                              scope='authorities', 
                               id='33UF',
                               attribute='comments',
                               submission_dates=None)
@@ -156,17 +194,26 @@ class SPARQLTests(unittest.TestCase):
     ######### Test for the Count Sparql #############
     
     def test_count_feedback_for_scope(self):
-        gen = SPARQLGenerator(scope='authorities')
+        gen = SPARQLGenerator(query_template='scoped_plingback_count',
+                              scope='authorities')
         sparql = gen.sparql()
         self.failUnless('SELECT ?group (COUNT(?plingback) as ?noOfFeedbacks)' in sparql)
         self.failUnless('?pling pbo:la ?group .'in sparql)
         self.failUnless('GROUP BY ?group' in sparql)
         
     def test_count_feedback_for_scope_and_id(self):
-        gen = SPARQLGenerator(scope='authorities',
+        gen = SPARQLGenerator(query_template='narrow_scoped_plingback_count',
+                              scope='authorities',
                               id='33UF')
         sparql = gen.sparql()
-        self.failUnless('SELECT ?group (COUNT(?plingback) as ?noOfFeedbacks)' in sparql)
+        self.failUnless('SELECT (COUNT(?plingback) as ?noOfFeedbacks)' in sparql)
         self.failUnless("?pling pbo:la '33UF'" in sparql)
-        self.failUnless('GROUP BY ?group' in sparql)
+        
+    def test_count_feedback_for_pling(self):
+        gen = SPARQLGenerator(query_template='pling_plingback_count',
+                              id='12345')
+        sparql = gen.sparql()
+        self.failUnless('SELECT (COUNT(?plingback) as ?noOfFeedbacks)' in sparql)
+        self.failUnless("?plingback pbo:isAbout <http://plings.net/a/12345>" in sparql)
+
     
