@@ -6,6 +6,8 @@ from plingback.output.formatter import ResultFormatter
 
 
 def handler(request):
+    # Use the route name as the sparql template name
+    # replace in any attribute name if present
     sparql_template = request.matched_route.name
     attribute = request.matchdict.get('attribute', None)
     if attribute:

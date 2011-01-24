@@ -21,7 +21,7 @@ class OutputRoot(object):
         
         
 
-    def query_store(self, sparql):
+    def query_store(self, sparql, format='json'):
         """ Use the supplied sparql to query the store returning a dictionary of data """
         # Prepare to authenticate our query
         passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
@@ -37,9 +37,17 @@ class OutputRoot(object):
             msg = (sparql)
             self.logger and self.logger.debug(msg)
         
-        url_query = urllib.urlencode({'query':sparql , 'output':'json'})
-        data = json.loads(urllib2.urlopen(self.sparql_endpoint + '?' + url_query).read())
-        return data
+        params = {'query':sparql}
+        if format:
+            params['output'] = format
+        url_query = urllib.urlencode(params)
+        res = urllib2.urlopen(self.sparql_endpoint + '?' + url_query)
+        
+        if format == 'json':
+            # Deserialize for convenince
+            return json.loads(res.read())
+        else:
+            return res
     
 class InputRoot(OutputRoot):
     
