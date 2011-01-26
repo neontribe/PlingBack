@@ -48,7 +48,7 @@ class ActivityAugmenter(object):
         added = []
         for activity in activities:
             pling_uri = activity['pling']['value']
-            self.store.add((URIRef(pling_uri), ns['RDFS']['type'], ns['PBO']['Activity']))
+            self.store.add((URIRef(pling_uri), ns['RDF']['type'], ns['PBO']['Activity']))
             added.append(pling_uri)
             
         self.store.sync()
@@ -71,16 +71,18 @@ class ActivityAugmenter(object):
         # get all plings referred to by plingbacks
         # only return those which don't have an upto date augmentation version
         # Omit those which have a plingFetchError at 404 unless retry_previous_failures
+        import pdb
+        pdb.set_trace()
         query = """
         PREFIX pb: <http://plingback.plings.net/ontologies/plingback#>
-        PREFIX rdfs: <http://www.w3.org/TR/rdf-schema/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         DESCRIBE ?pling
         WHERE {
-           ?pling rdfs:type pb:Activity .
+           ?pling rdf:type pb:Activity .
            OPTIONAL { ?pling pb:augmentation_version ?aug_version }
            FILTER ( !bound(?aug_version) || ?aug_version < %s )
 
-        } LIMIT 10
+        } LIMIT 1
         """ % (self.target_augmentation_version)
         
         activities = self.sparql_endpoint(query).items()

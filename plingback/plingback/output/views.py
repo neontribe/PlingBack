@@ -27,6 +27,7 @@ def handler(request):
     
     results = request.root.query_store(sparql)
     
-    return ResultFormatter(results, s_gen).format()
+    output = ResultFormatter(results, s_gen).format()
+    return output
 
 

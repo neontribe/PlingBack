@@ -42,7 +42,9 @@ class TripleFactory(object):
         plingback_type_uri = URIRef("http://plingback.plings.net/applications/" 
                                     + urllib.quote_plus(plingback_type.strip()))
         
-        self.graph.add((self.feedback_uri, ns['RDFS']['type'], ns['REV']['Review']))
+        self.graph.add((self.feedback_uri, ns['RDF']['type'], ns['REV']['Review']))
+        self.graph.add((pling, ns['REV']['hasReview'], self.feedback_uri))
+        self.graph.add((pling, ns['RDF']['type'], ns['PBO']['Activity']))
         self.graph.add((self.feedback_uri, ns['PBO']['isAbout'], pling))
         self.graph.add((self.feedback_uri, ns['DC']['date'], Literal(datetime.datetime.now())))
         
@@ -58,16 +60,16 @@ class TripleFactory(object):
 
         query = """
             PREFIX pbo: <%s> 
-            PREFIX rdfs: <%s> 
+            PREFIX rdf: <%s> 
             PREFIX dc: <%s> 
             PREFIX rev: <%s>
-            CONSTRUCT { <%s> rdfs:type ?type .
+            CONSTRUCT { <%s> rdf:type ?type .
                         <%s> pbo:isAbout ?pling .
                         <%s> dc:date ?date .
                         <%s> pbo:plingBackType ?pbt .
                         <%s> pbo:plingBackVersion ?version .
                       } 
-            WHERE { <%s> rdfs:type ?type .
+            WHERE { <%s> rdf:type ?type .
                     <%s> pbo:isAbout ?pling .
                     <%s> dc:date ?date .
                     <%s> pbo:plingBackType ?pbt .
@@ -76,7 +78,7 @@ class TripleFactory(object):
                       }
             }"""
             
-        query = query % (str(ns['PBO']), str(ns['RDFS']), str(ns['DC']), str(ns['REV']),
+        query = query % (str(ns['PBO']), str(ns['RDF']), str(ns['DC']), str(ns['REV']),
                  self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri,
                  self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri, 
                  self.feedback_uri, self.feedback_uri)

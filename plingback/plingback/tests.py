@@ -83,5 +83,12 @@ class FunctionalTests(unittest.TestCase):
         res.mustcontain('1019868') # Working on the activity we expect?
         res.mustcontain('00EQMX') # Got the right ward?
         
-
+    def test_unaugmented_post_rating(self):
+        res = self.testapp.post('/api/plingbacks', {'pling_id':'54678',
+                                                    'feedback_attribute':'rating',
+                                                    'rating_value':'10',
+                                                    'plingback_type':'automated_testing'})
+        self.failUnless(res.status == '201 Created')
+        self.failUnless(res.headers.has_key('Location'))
+        self.failUnless('application/json' in res.headers['Content-Type'])
         

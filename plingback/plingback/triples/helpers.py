@@ -148,7 +148,7 @@ class ReviewerAttribute(FeedbackAttribute):
             if tpid or tps:
                 acc = BNode()
                 triples.append((reviewer, ns['FOAF']['holdsAccount'], acc))
-                triples.append((acc, ns['RDFS']['type'], ns['FOAF']['OnlineAccount']))
+                triples.append((acc, ns['RDF']['type'], ns['FOAF']['OnlineAccount']))
                 if tps:
                     triples.append((acc, ns['FOAF']['accountServiceHomepage'], URIRef(tps)))
                 if tpid:
@@ -159,7 +159,7 @@ class ReviewerAttribute(FeedbackAttribute):
         #If we found some data then add the BNode and type
         if triples:
             triples.append((self.feedback_uri, ns['REV']['reviewer'], reviewer))
-            triples.append((reviewer, ns['RDFS']['type'], ns['FOAF']['Person']))
+            triples.append((reviewer, ns['RDF']['type'], ns['FOAF']['Person']))
         
         return triples
 
@@ -169,12 +169,12 @@ class ReviewerAttribute(FeedbackAttribute):
             PREFIX rdfs: <%s> 
             PREFIX foaf: <%s> 
             CONSTRUCT { <%s> rev:reviewer ?rbn .
-                                     ?rbn rdfs:type foaf:Person .
+                                     ?rbn rdf:type foaf:Person .
                                      ?rbn foaf:mbox ?email .
                                      ?rbn foaf:phone ?phone .
                                      ?rbn foaf:dateOfBirth ?dob.
                                      ?rbn foaf:holdsAccount ?acc.
-                                     ?acc rdfs:type foaf:OnlineAccount.
+                                     ?acc rdf:type foaf:OnlineAccount.
                                      ?acc foaf:accountServiceHomepage ?homepage.
                                      ?acc foaf:accountName ?accid} 
             WHERE { <%s> rev:reviewer ?rbn .
@@ -187,5 +187,5 @@ class ReviewerAttribute(FeedbackAttribute):
                                                ?acc foaf:accountName ?accid
                               }
             }"""
-        query = query % (str(ns['REV']), str(ns['RDFS']), str(ns['FOAF']), self.feedback_uri, self.feedback_uri)
+        query = query % (str(ns['REV']), str(ns['RDF']), str(ns['FOAF']), self.feedback_uri, self.feedback_uri)
         return query
