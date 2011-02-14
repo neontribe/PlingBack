@@ -16,7 +16,7 @@ from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalSe
 from plingback.triples import TripleFactory
 from plingback.triples.helpers import FeedbackAttribute
 from plingback.namespaces import namespaces as ns
-from plingback.resources import InputRoot
+from plingback.resources import TripleStore
         
         
 
@@ -31,7 +31,7 @@ class TripleFactoryTests(unittest.TestCase):
     def configure_triple_factory(self, path, params, fbid='feedback_id_value'):
         request = testing.DummyRequest(path=path,
                                        params=MultiDict(params))
-        request.context = InputRoot(request)
+        request.context = TripleStore(request)
         tf = TripleFactory(request, fbid)
         return tf
         

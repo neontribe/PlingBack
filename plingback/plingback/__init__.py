@@ -1,5 +1,5 @@
 from pyramid.config import Configurator
-from plingback.resources import InputRoot, OutputRoot
+from plingback.resources import TripleStore
 
 
 def main(global_config, **settings):
@@ -14,32 +14,32 @@ def main(global_config, **settings):
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
-                     factory=OutputRoot)
+                     factory=TripleStore)
     config.add_route('scoped_attribute', 
                      '/api/{scope}/{id}/{attribute}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
-                     factory=OutputRoot)
+                     factory=TripleStore)
     
     config.add_route('scoped_plingback_count', 
                      '/api/{scope}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
-                     factory=OutputRoot)
+                     factory=TripleStore)
     config.add_route('narrow_scoped_plingback_count', 
                      '/api/{scope}/{id}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
-                     factory=OutputRoot)
+                     factory=TripleStore)
     config.add_route('pling_plingback_count', 
                      '/api/plings/{id}', 
                      view='plingback.output.views.handler',
                      view_renderer='json',
                      request_method='GET',
-                     factory=OutputRoot)
+                     factory=TripleStore)
     
     # Setup the Input API
     # POSTs to the controller create new nodes the posted data will be parsed
@@ -49,7 +49,7 @@ def main(global_config, **settings):
                      view='plingback.input.views.create',
                      view_renderer='json',
                      request_method='POST',
-                     factory=InputRoot)
+                     factory=TripleStore)
     # PUTs to an id create that node the posted data will be parsed
     # for subnodes (ratings etc) which will also be created
     config.add_route('create_feedback_node_by_id',
@@ -57,7 +57,7 @@ def main(global_config, **settings):
                      view='plingback.input.views.create',
                      view_renderer='json',
                      request_method='PUT',
-                     factory=InputRoot)
+                     factory=TripleStore)
 
     # POSTs to a feedback attribute create it
     config.add_route('create_feedback_attribute',
@@ -65,7 +65,7 @@ def main(global_config, **settings):
                      view='plingback.input.views.attribute_handler',
                      view_renderer='json',
                      request_method='POST',
-                     factory=InputRoot)
+                     factory=TripleStore)
                           
     # PUTs to a feedback attribute overwrite
     config.add_route('update_feedback_attribute',
@@ -73,7 +73,7 @@ def main(global_config, **settings):
                      view='plingback.input.views.attribute_handler',
                      view_renderer='json',
                      request_method='PUT',
-                     factory=InputRoot)
+                     factory=TripleStore)
     
     
     
@@ -84,7 +84,7 @@ def main(global_config, **settings):
                          view='plingback.input.views.delete',
                          view_renderer='json',
                          request_method='DELETE',
-                         factory=InputRoot)
+                         factory=TripleStore)
    
     # Shards of testing bits + maintanance1    
     config.add_route('populate_id_pool',
@@ -92,7 +92,7 @@ def main(global_config, **settings):
                      view='plingback.maintenance.views.populate_id_pool',
                      view_renderer='json',
                      request_method='GET',
-                     factory=InputRoot)
+                     factory=TripleStore)
     
     # Augmentations
     config.add_route('add_activity_nodes',
@@ -100,13 +100,13 @@ def main(global_config, **settings):
                      view='plingback.augmentations.views.add_activity_nodes',
                      view_renderer='json',
                      request_method='GET',
-                     factory=InputRoot)
+                     factory=TripleStore)
     config.add_route('add_activity_data',
                      '/augmentations/add_activity_data',
                      view='plingback.augmentations.views.add_activity_data',
                      view_renderer='json',
                      request_method='GET',
-                     factory=InputRoot)
+                     factory=TripleStore)
     
     # Route to static resources
     config.add_static_view('static', 'plingback:static')

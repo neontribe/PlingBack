@@ -7,13 +7,11 @@ from rdfextras.sparql.query import SPARQLQueryResult
 from pyramid.interfaces import IDebugLogger
 
 
-class OutputRoot(object):
+class TripleStore(object):
     """ A root object to supply store connectivity to view code """
     def __init__(self, request):
         self.request = request
-        
 
-        
         q = self.request.registry.queryUtility
         self.logger = q(IDebugLogger)
 
@@ -47,13 +45,9 @@ class OutputRoot(object):
         
     def sync(self):
         if self.request.registry.settings['store_type'] == 'talis':
-            self.store.sync2()
+            self.store.sync()
         else:
             pass
-    
-class InputRoot(OutputRoot):
-    
-    def __init__(self, request):
-        super(InputRoot, self).__init__(request)
+
         
         
