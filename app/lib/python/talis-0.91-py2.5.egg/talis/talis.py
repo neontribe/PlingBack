@@ -77,10 +77,32 @@ class Talis(object):
 		self.versioned = versioned
 		self.log = logging.getLogger("talis[%s]" % (store,))
 		self._changesets = {}
+		self._urlopen = None
 
 	def __del__(self):
 		## make sure to flush any unsaved changes
 		self.sync()
+		
+	def get_urlopener(self):
+		"""
+		Build, cache and return a urlopener
+		
+		Uses digest authentication if a username and password were supplied at instantiation.
+		"""
+		if not self._urlopen:
+			if self.username and self.password:
+				# create a password manager
+				password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+				# Add the username and password.
+				# If we knew the realm, we could use it instead of ``None``.
+				password_mgr.add_password(None, self.urlbase, self.username, self.password)
+				handler = urllib2.HTTPDigestAuthHandler(password_mgr)
+				# create "opener" (OpenerDirector instance)
+				self._urlopen = urllib2.build_opener(handler).open
+			else:
+				self._urlopen = urllib2.urlopen	
+		return self._urlopen
+		 
 
 	def add(self, statement):
 		"""
@@ -135,7 +157,7 @@ class Talis(object):
 		self._changesets = {}
 		return g.serialize()
 
-	def sync2(self):
+	def sync(self):
 		"""
 		Upload any queued changesets.
 		"""
@@ -155,21 +177,6 @@ class Talis(object):
 		This generally requires a username and password
 		to have been set.
 		"""
-		###
-		### build the authenticator
-		###
-		if self.username and self.password:
-			# create a password manager
-			password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-			# Add the username and password.
-			# If we knew the realm, we could use it instead of ``None``.
-			password_mgr.add_password(None, self.urlbase, self.username, self.password)
-			handler = urllib2.HTTPDigestAuthHandler(password_mgr)
-			# create "opener" (OpenerDirector instance)
-			urlopen = urllib2.build_opener(handler).open
-		else:
-			urlopen = urllib2.urlopen
-
 		url = self.urlbase + path
 		headers = {
 			'User-Agent' : USER_AGENT,
@@ -180,7 +187,7 @@ class Talis(object):
 		req = urllib2.Request(url, data, headers)
 		try:
 			t0 = datetime.now()
-			fp = urlopen(req)
+			fp = self.get_urlopener()(req)
 			response = fp.read()
 			fp.close()
 			t1 = datetime.now()
@@ -270,20 +277,6 @@ class Talis(object):
 		q = "\n".join(map(lambda x: "PREFIX %s: <%s>" % x, ns.items())) + "\n" + query
 		self.log.debug("SPARQL Query:\n%s" % (q,))
 		###
-		### build the authenticator
-		###
-		if self.username and self.password:
-			# create a password manager
-			password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-			# Add the username and password.
-			# If we knew the realm, we could use it instead of ``None``.
-			password_mgr.add_password(None, self.urlbase, self.username, self.password)
-			handler = urllib2.HTTPDigestAuthHandler(password_mgr)
-			# create "opener" (OpenerDirector instance)
-			urlopen = urllib2.build_opener(handler).open
-		else:
-			urlopen = urllib2.urlopen
-		###
 		### prepare the HTTP request
 		###
 		url = self.urlbase + "/services/sparql"
@@ -296,7 +289,7 @@ class Talis(object):
 		req = urllib2.Request(url, data, headers)
 		try:
 			t0 = datetime.now()
-			fp = urlopen(req)
+			fp = self.get_urlopener()(req)
 			response = fp.read()
 			fp.close()
 			t1 = datetime.now()
@@ -341,8 +334,7 @@ class Talis(object):
 					datatype = v.get("datatype")
 					if datatype:
 						dturi = URIRef(datatype)
-						parsed = XSDToPython[dturi](v.text)
-						value = Literal(parsed, datatype=dturi)
+						value = Literal(XSDToPython[dturi](v.text), datatype=dturi)
 					else:
 						value = Literal(v.text)
 				row[b.get("name")] = value
