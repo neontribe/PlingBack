@@ -3,7 +3,7 @@ import urllib2
 from rdflib import Graph
 from rdflib import BNode, Literal, URIRef, Namespace
 
-from plingback import namespaces as ns
+from plingback.namespaces import namespaces as ns
 
 class FeedbackIdManager(object):
     ID_POOL_SIZE = 20
@@ -11,27 +11,29 @@ class FeedbackIdManager(object):
     MAX_ID_ATTEMPTS = 3
 
     
-    def __init__(self, request):
-        self.context = request.context
+    def __init__(self, resource, auto_populate_pool=True):
+        self.context = resource
+        self.auto_populate_pool = auto_populate_pool
     
     def fetch_candidates(self):
-        """Get a list of potential ids"""
+        """Get a list of potential ids
+        """
         candidates_query = """
           PREFIX pb: <http://plingback.plings.net/ontologies/plingback#>
-          SELECT ?s  ?o WHERE { ?s pb:idCandidate ?o } ORDER BY DESC(?o)
+          SELECT ?s  ?o WHERE { ?s pb:idCandidate ?o } ORDER BY ?o
           LIMIT %s
         """
         candidates_query = candidates_query % (self.ID_CANDIDATE_LIMIT)
-        results = self.context.query_store(candidates_query)['results']['bindings']
-        return [(x['s']['value'], x['o']['value']) for x in results]
+        results = self.context.query(candidates_query)
+        candidates = [x for x in results] #unpack the generator
+        return candidates
     
     def get_unique_feedback_id(self):
         """ Get a unique id for a piece of feedback by using the Primary Key Pattern
         
         See http://n2.talis.com/wiki/Primary_Key_Pattern for an overview
         """
-    
-        
+
         candidates = []
         attempts = 0
         feedback_id = None
@@ -40,10 +42,10 @@ class FeedbackIdManager(object):
             """Push a changeset removing our chosen id and adding a replacement
             
             If this succeeds we can go ahead and use the id"""
-            self.context.store.remove((candidate[0], ns['PBO']['idCandidate'], Literal(int(float(candidate[1]))) ))
-            self.context.store.add((BNode(), ns['PBO']['idCandidate'], Literal(int(float(candidate[1]) + self.ID_POOL_SIZE))))
+            self.context.store.remove((candidate[0], ns['PBO']['idCandidate'], candidate[1] ))
+            self.context.store.add((BNode(), ns['PBO']['idCandidate'], Literal(candidate[1].toPython() + self.ID_POOL_SIZE)))
             try:
-                self.context.store.sync()
+                self.context.sync()
             except urllib2.URLError, e:
                 if e.code == 202:
                     pass
@@ -54,6 +56,9 @@ class FeedbackIdManager(object):
         while feedback_id == None and attempts < self.MAX_ID_ATTEMPTS:
             if not candidates:
                 candidates = self.fetch_candidates()
+                if not candidates:
+                    self.populate_id_pool()
+                    candidates = self.fetch_candidates()
                 
             candidate = random.choice(candidates)
             candidates.remove(candidate)
@@ -83,7 +88,7 @@ class FeedbackIdManager(object):
         for x in range(start, start + self.ID_POOL_SIZE + 1):
             self.context.store.add((BNode(), ns['PBO']['idCandidate'], Literal(x)))
         try:
-            self.context.store.sync()
+            self.context.sync()
         except urllib2.URLError, e:
             if e.code == 202:
                 pass

@@ -1,5 +1,5 @@
 from pyramid.renderers import render
-from plingback import namespaces
+from plingback.namespaces import namespaces
 
 class SPARQLGenerator(object):
     

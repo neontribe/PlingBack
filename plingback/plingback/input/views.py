@@ -11,7 +11,7 @@ import random
 import urllib
 import datetime
 
-from plingback import namespaces as ns
+from plingback.namespaces import namespaces as ns
 from plingback.idgen import FeedbackIdManager
 from plingback.triples import make_feedback_uri, TripleFactory
 from webob.exc import HTTPUnauthorized
@@ -35,9 +35,12 @@ def create(request): #self, feedback_id=None, method=None):
         PUT /api/plingbacks/id: Create a new feedback node using id provided
         
         Get /jsapi/plingbacks"""
+    # Bug out early if there's no indication of what the feedback's about
+    if not request.params.get('pling_id'):
+        return HTTPBadRequest(detail='the request should specify a pling_id')
         
     feedback_id = None
-
+    
     if request.method.lower() == 'get':
         mode = request.matchdict.get('method').upper()
         if mode not in ['POST', 'PUT']:
@@ -47,7 +50,7 @@ def create(request): #self, feedback_id=None, method=None):
 
     #Arbitrate between POST and PUT requests
     if request.method.lower() == 'post':
-        id_mgr = FeedbackIdManager(request)
+        id_mgr = FeedbackIdManager(request.context)
         feedback_id = id_mgr.get_unique_feedback_id()
         if not feedback_id:
             return HTTPInternalServerError(details='Failed to generate a unique feedback_id')
@@ -60,7 +63,7 @@ def create(request): #self, feedback_id=None, method=None):
                 return HTTPBadRequest(detail='Missing feedback_id')
     
     
-    tf = TripleFactory(request.context.store, request, feedback_id)
+    tf = TripleFactory(request, feedback_id)
     #Build the feedback node into the local graph
     init = tf.init_feedback_node()
     # Propagate any exception NB: can we not find a way to 'raise' errors?
@@ -72,7 +75,7 @@ def create(request): #self, feedback_id=None, method=None):
         return attrs
     
     # Commit the changes to the store
-    store_result = request.context.store.sync()
+    store_result = request.context.sync()
     
     # We've done a create so add an appropriate Location header
     # and set the response code appropriately
@@ -97,7 +100,7 @@ def attribute_handler(request):
     if request.method == 'PUT':
         overwrite = True
     
-    tf = TripleFactory(request.context.store, request, request.matchdict.get('feedback_id'))            
+    tf = TripleFactory(request, request.matchdict.get('feedback_id'))            
     attrs = tf.add_attribute(overwrite=overwrite)
     if isinstance(attrs, HTTPException):
         return attrs   
@@ -113,10 +116,10 @@ def attribute_handler(request):
 
 def delete(request):
     if request.registry.settings.get('enable_delete', False):
-        tf = TripleFactory(request.context.store, request, request.matchdict.get('feedback_id', None))
+        tf = TripleFactory(request, request.matchdict.get('feedback_id', None))
         tf.remove_feedback_node()
         # Commit the changes to the store
-        request.context.store.sync()
+        request.context.sync()
         
     else:
         return HTTPUnauthorized()

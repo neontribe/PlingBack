@@ -4,7 +4,7 @@ from rdflib import Graph
 from rdflib import BNode, Literal, URIRef, Namespace
 from talis import Talis
 from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalServerError
-from plingback import namespaces as ns
+from plingback.namespaces import namespaces as ns
 from plingback.triples.helpers import CommentAttribute, RatingAttribute, ReviewerAttribute, \
                                       AttendanceAttribute, DeterrentAttribute, ApprovalAttribute
 from plingback.triples.helpers import make_feedback_uri
@@ -13,8 +13,8 @@ from plingback.triples.helpers import make_feedback_uri
 
 
 class TripleFactory(object):
-    def __init__(self, graph, request, feedback_id):
-        self.graph = graph
+    def __init__(self, request, feedback_id):
+        self.context = request.context
         self.request = request
         self.feedback_id = feedback_id
         self.feedback_uri = make_feedback_uri(self.feedback_id)
@@ -42,15 +42,15 @@ class TripleFactory(object):
         plingback_type_uri = URIRef("http://plingback.plings.net/applications/" 
                                     + urllib.quote_plus(plingback_type.strip()))
         
-        self.graph.add((self.feedback_uri, ns['RDF']['type'], ns['REV']['Review']))
-        self.graph.add((pling, ns['REV']['hasReview'], self.feedback_uri))
-        self.graph.add((pling, ns['RDF']['type'], ns['PBO']['Activity']))
-        self.graph.add((self.feedback_uri, ns['PBO']['isAbout'], pling))
-        self.graph.add((self.feedback_uri, ns['DC']['date'], Literal(datetime.datetime.now())))
+        self.context.store.add((self.feedback_uri, ns['RDF']['type'], ns['REV']['Review']))
+        self.context.store.add((pling, ns['REV']['hasReview'], self.feedback_uri))
+        self.context.store.add((pling, ns['RDF']['type'], ns['PBO']['Activity']))
+        self.context.store.add((self.feedback_uri, ns['PBO']['isAbout'], pling))
+        self.context.store.add((self.feedback_uri, ns['DC']['date'], Literal(datetime.datetime.now())))
         
-        self.graph.add((self.feedback_uri, ns['PBO']['plingBackType'], plingback_type_uri))
+        self.context.store.add((self.feedback_uri, ns['PBO']['plingBackType'], plingback_type_uri))
         if self.request.params.get('plingback_version'):
-            self.graph.add((self.feedback_uri, 
+            self.context.store.add((self.feedback_uri, 
                             ns['PBO']['plingBackVersion'], 
                             Literal(self.request.params.get('plingback_version'))))
             
@@ -68,6 +68,7 @@ class TripleFactory(object):
                         <%s> dc:date ?date .
                         <%s> pbo:plingBackType ?pbt .
                         <%s> pbo:plingBackVersion ?version .
+                        ?pling rev:hasReview <%s> .
                       } 
             WHERE { <%s> rdf:type ?type .
                     <%s> pbo:isAbout ?pling .
@@ -81,15 +82,11 @@ class TripleFactory(object):
         query = query % (str(ns['PBO']), str(ns['RDF']), str(ns['DC']), str(ns['REV']),
                  self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri,
                  self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri, 
-                 self.feedback_uri, self.feedback_uri)
-        if isinstance(self.graph, Talis):
-            local_graph = Graph()
-            triples = local_graph.parse(self.request.root.query_store(query, format=None))
-        else:
-            output_graph = [x for x in self.graph.query(query)][0]
-            triples = [x for x in output_graph]
+                 self.feedback_uri, self.feedback_uri, self.feedback_uri)
+        
+        triples = [x for x in self.context.query(query)]
         for triple in triples:
-            self.graph.remove(triple)
+            self.context.store.remove(triple)
         
     
     def attribute_factory(self, attribute):
@@ -122,7 +119,7 @@ class TripleFactory(object):
                 if isinstance(triples, HTTPException):
                     return triples
                 for triple in triples:
-                    self.graph.add(triple)
+                    self.context.store.add(triple)
                 success.append(attribute)
             except KeyError:
                 pass
@@ -152,22 +149,13 @@ class TripleFactory(object):
     def _remove_feedback_attribute(self, attribute_name):
         """ Queries the store for the triple representing the attribute and then 
         issues removal requests against the graph"""
-        #local_graph = Graph()
-        #sparqurl = self.graph.urlbase + '/services/sparql?query='
-        #import pdb
-        #pdb.set_trace()
         try:
             helper = self.attribute_factory(attribute_name)
             query = helper.removal_query()
             if query:
-                if isinstance(self.graph, Talis):
-                    local_graph = Graph()
-                    triples = local_graph.parse(self.request.root.query_store(query, format=None))
-                else:
-                    output_graph = [x for x in self.graph.query(query)][0]
-                    triples = [x for x in output_graph]
+                triples = [x for x in self.context.query(query)]
                 for triple in triples:
-                    self.graph.remove(triple)
+                    self.context.store.remove(triple)
         except KeyError:
             return HTTPBadRequest(detail='Unknown feedback attribute supplied')
                    

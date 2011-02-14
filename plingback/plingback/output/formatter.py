@@ -10,9 +10,9 @@ class ResultFormatter(object):
         
     def _format_ratings(self, output):
         ratings = []
-        for result in self.data['results']['bindings']:
+        for result in self.data:
             try:
-                ratings.append( float(result['item']['value']) )
+                ratings.append( float(result[0].toPython()) )
             except ValueError:
                 pass
         output['results'] = {}
@@ -27,18 +27,18 @@ class ResultFormatter(object):
     
     def _format_approvals(self, output):
         output['results'] = {'approvals':{}}
-        for result in self.data['results']['bindings']:
+        for result in self.data:
             try:
-                output['results']['approvals'][str(result['item']['value'])] = int(result['count']['value'])
+                output['results']['approvals'][str(result[1])] = int(result[0].toPython())
             except ValueError:
                 pass
         return output
     
     def _format_comments(self, output):
         comments = []
-        for result in self.data['results']['bindings']:
-            comments.append( {'text': str(result['item']['value']),
-                              'activity': str(result['pling']['value'])} )
+        for result in self.data:
+            comments.append( {'text': str(result[0]),
+                              'activity': str(result[1])} )
         output['results'] = {}
         if comments:
             output['results']['comments'] = comments
@@ -48,10 +48,9 @@ class ResultFormatter(object):
     def _format_scope(self, output):
         groups = {}
         total = 0
-        for group in self.data['results']['bindings']:
-            if group.get('group'):
-                groups[group['group']['value']] = group['noOfFeedbacks']['value']
-                total += int(group['noOfFeedbacks']['value'])
+        for group in self.data:
+            groups[str(group[0])] = int(group[1])
+            total += int(group[1])
         output['results'] = groups
         output['totalFeedbackCount'] = total
         return output
@@ -59,9 +58,9 @@ class ResultFormatter(object):
     def _format_scope_and_id(self, output):
         groups = {}
         total = 0
-        for group in self.data['results']['bindings']:
-            groups['count'] = group['noOfFeedbacks']['value']
-            total += int(group['noOfFeedbacks']['value'])
+        for group in self.data:
+            groups['count'] = int(group[0])
+            total += int(group[0])
         output['results'] = groups
         output['totalFeedbackCount'] = total
         return output

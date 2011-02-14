@@ -30,6 +30,7 @@ from datetime import datetime
 
 from rdflib import ConjunctiveGraph as Graph
 from rdflib import BNode, URIRef, Literal, Namespace, RDF
+from rdflib.term import XSDToPython
 import uuid
 
 try:
@@ -134,7 +135,7 @@ class Talis(object):
 		self._changesets = {}
 		return g.serialize()
 
-	def sync(self):
+	def sync2(self):
 		"""
 		Upload any queued changesets.
 		"""
@@ -269,6 +270,20 @@ class Talis(object):
 		q = "\n".join(map(lambda x: "PREFIX %s: <%s>" % x, ns.items())) + "\n" + query
 		self.log.debug("SPARQL Query:\n%s" % (q,))
 		###
+		### build the authenticator
+		###
+		if self.username and self.password:
+			# create a password manager
+			password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+			# Add the username and password.
+			# If we knew the realm, we could use it instead of ``None``.
+			password_mgr.add_password(None, self.urlbase, self.username, self.password)
+			handler = urllib2.HTTPDigestAuthHandler(password_mgr)
+			# create "opener" (OpenerDirector instance)
+			urlopen = urllib2.build_opener(handler).open
+		else:
+			urlopen = urllib2.urlopen
+		###
 		### prepare the HTTP request
 		###
 		url = self.urlbase + "/services/sparql"
@@ -281,7 +296,7 @@ class Talis(object):
 		req = urllib2.Request(url, data, headers)
 		try:
 			t0 = datetime.now()
-			fp = urllib2.urlopen(req)
+			fp = urlopen(req)
 			response = fp.read()
 			fp.close()
 			t1 = datetime.now()
@@ -325,7 +340,9 @@ class Talis(object):
 				elif v.tag == literal:
 					datatype = v.get("datatype")
 					if datatype:
-						value = Literal(float(v.text), datatype=URIRef(datatype))
+						dturi = URIRef(datatype)
+						parsed = XSDToPython[dturi](v.text)
+						value = Literal(parsed, datatype=dturi)
 					else:
 						value = Literal(v.text)
 				row[b.get("name")] = value

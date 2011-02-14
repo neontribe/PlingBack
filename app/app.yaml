@@ -1,4 +1,4 @@
-application: plingback
+application: plingback-testing
 version: 1
 runtime: python
 api_version: 1

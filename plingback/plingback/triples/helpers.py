@@ -1,7 +1,7 @@
 from rdflib import BNode, Literal, URIRef, Namespace
 from pyramid.httpexceptions import  HTTPBadRequest
 
-from plingback import namespaces as ns
+from plingback.namespaces import namespaces as ns
 
 def make_feedback_uri(feedback_id):
     return ns['PB'][feedback_id]

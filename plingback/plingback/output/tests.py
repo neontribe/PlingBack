@@ -4,6 +4,8 @@ from pyramid.config import Configurator
 from pyramid import testing
 from pyramid.mako_templating import MakoLookupTemplateRenderer, renderer_factory as mako_renderer_factory
 
+from rdflib import Literal, URIRef
+
 from plingback.output.formatter import ResultFormatter
 
 class MockSPARQLGenerator(object):
@@ -37,13 +39,7 @@ class ResultFormatterTests(unittest.TestCase):
         gen = MockSPARQLGenerator(scope='authorities', 
                               id='33UF',
                               attribute='ratings')
-        data = {"head": {"vars": ["item"]},
-                "results": {"bindings": [
-                    {"item": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                              "type": "typed-literal", "value": "60"}},
-                    {"item": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                              "type": "typed-literal", "value": "duff data"}}
-                    ]}}
+        data = [[Literal(60)],[Literal("duff data")]]
         rf = ResultFormatter(data, gen).format()
         self.failUnless(rf['results']['count'] == 1)
         self.failUnless(rf['results']['median'] == 60)
@@ -52,19 +48,8 @@ class ResultFormatterTests(unittest.TestCase):
         gen = MockSPARQLGenerator(scope='authorities', 
                               id='33UF',
                               attribute='approvals')
-        data = {"head": {
-                  "vars": ["item", "count"]}, 
-                  "results": {
-                    "bindings": [
-                      {"count": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                 "type": "typed-literal", "value": "busted"}, 
-                        "item": {"type": "uri", 
-                                 "value": "http://plingback.plings.net/applications/addthis-"}},
-                      {"count": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                 "type": "typed-literal", "value": "51"}, 
-                        "item": {"type": "uri", "value": "http://plingback.plings.net/applications/FBLike"}}
-                    ]}}
-                    
+        data = [[Literal("busted"), URIRef("http://plingback.plings.net/applications/addthis-")],
+                [Literal(51), URIRef("http://plingback.plings.net/applications/FBLike")]]
         rf = ResultFormatter(data, gen).format()
         self.failUnless(rf['results']['approvals']["http://plingback.plings.net/applications/FBLike"] == 51)
         
@@ -72,52 +57,28 @@ class ResultFormatterTests(unittest.TestCase):
         gen = MockSPARQLGenerator(scope='authorities', 
                               id='33UF',
                               attribute='comments')
-        data = {"head": {"vars": ["item", "pling"]}, 
-                "results": {"bindings": [
-                    {"item": {"type": "literal", "value": "A test comment"}, 
-                     "pling": {"type": "uri", "value": "http://plings.net/a/452820"}}, 
-                    {"item": {"type": "literal", "value": " "}, 
-                     "pling": {"type": "uri", "value": "http://plings.net/a/452820"}}
-                    ]}}
+        data = [[Literal("A test comment"), URIRef("http://plings.net/a/452820")],
+                [Literal(" "), URIRef("http://plings.net/a/452820")]]
                     
         rf = ResultFormatter(data, gen).format()
         self.failUnless(rf['results']['count'] == 2)
         
     def test_scoped_count_output(self):       
         gen = MockSPARQLGenerator(scope='authorities')
-        data = {"head": {"vars": ["group", "noOfFeedbacks"]}, 
-                "results": {"bindings": [
-                    {"group": {"type": "literal", "value": "00FY"}, 
-                     "noOfFeedbacks": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                       "type": "typed-literal", "value": "629"}}, 
-                    {"group": {"type": "literal", "value": "00EJ"}, 
-                     "noOfFeedbacks": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                       "type": "typed-literal", "value": "602"}}
-                ]}}
-                    
+        data = [[Literal("00FY"), Literal(629)],[Literal("00EJ"), Literal(602)]]                  
         rf = ResultFormatter(data, gen).format()
         self.failUnless(rf['totalFeedbackCount'] == 1231)
         
     def test_scoped_id_count_output(self):       
         gen = MockSPARQLGenerator(scope='authorities', id='33UF')
-        data = {"head": {"vars": ["group", "noOfFeedbacks"]}, 
-                "results": {"bindings": [
-                    {"noOfFeedbacks": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                       "type": "typed-literal", "value": "160"}}]}}
-        
-                    
+        data = [[Literal(160)]]                    
         rf = ResultFormatter(data, gen).format()
         self.failUnless(rf['totalFeedbackCount'] == 160)
         self.failUnless(rf['queryScope'] == 'authorities')
         self.failUnless(rf['id'] == '33UF')
         
     def test_no_sparql_output(self):
-        data = {"head": {"vars": ["group", "noOfFeedbacks"]}, 
-                "results": {"bindings": [
-                    {"noOfFeedbacks": {"datatype": "http://www.w3.org/2001/XMLSchema#integer", 
-                                       "type": "typed-literal", "value": "160"}}]}}
-        
-                    
+        data = [[Literal(160)]]          
         rf = ResultFormatter(data).format()
         self.failUnless(rf == data)
         

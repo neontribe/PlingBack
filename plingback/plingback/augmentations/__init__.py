@@ -9,8 +9,8 @@ class ActivityAugmenter(object):
     
     def __init__(self, request):
         self.request = request
-        self.store = self.request.root.store
-        self.sparql_endpoint = self.request.root.query_store
+        self.context = self.request.root
+        self.sparql_endpoint = self.request.root.query
         
         # A map of the attributes we wish to add
         # The key is the name used by the PB obtology
@@ -44,14 +44,14 @@ class ActivityAugmenter(object):
         } LIMIT 10
         """
 
-        activities = self.sparql_endpoint(query)['results']['bindings']
+        activities = self.sparql_endpoint(query)
         added = []
         for activity in activities:
-            pling_uri = activity['pling']['value']
-            self.store.add((URIRef(pling_uri), ns['RDF']['type'], ns['PBO']['Activity']))
+            pling_uri = activity[0]
+            self.store.add((pling_uri, ns['RDF']['type'], ns['PBO']['Activity']))
             added.append(pling_uri)
             
-        self.store.sync()
+        self.context.sync()
         
         return {'augmentation':'add_activity_nodes',
                 'uris_updated':added}
@@ -71,8 +71,7 @@ class ActivityAugmenter(object):
         # get all plings referred to by plingbacks
         # only return those which don't have an upto date augmentation version
         # Omit those which have a plingFetchError at 404 unless retry_previous_failures
-        import pdb
-        pdb.set_trace()
+
         query = """
         PREFIX pb: <http://plingback.plings.net/ontologies/plingback#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -85,11 +84,11 @@ class ActivityAugmenter(object):
         } LIMIT 1
         """ % (self.target_augmentation_version)
         
-        activities = self.sparql_endpoint(query).items()
+        activities = self.sparql_endpoint(query)
         
         triples = []
         for activity in activities:
-            activity_id = activity[0].split('/')[-1] 
+            activity_id = str(activity[0]).split('/')[-1] 
 
             #get pling information from rest API
             url = "http://feeds.plings.net/activity.php/%s.xml"
