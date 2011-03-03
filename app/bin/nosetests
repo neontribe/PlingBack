@@ -1,4 +1,4 @@
-#!/home/rupert/aptana-git/PlingBack/bin/python
+#!/home/rupert/aptana3-workspace/PlingBack/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'nose==1.0.0','console_scripts','nosetests'
 __requires__ = 'nose==1.0.0'
 import sys

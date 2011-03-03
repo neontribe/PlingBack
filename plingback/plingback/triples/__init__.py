@@ -1,8 +1,6 @@
 import urllib
 import datetime
-from rdflib import Graph
 from rdflib import BNode, Literal, URIRef, Namespace
-from talis import Talis
 from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalServerError
 from plingback.namespaces import namespaces as ns
 from plingback.triples.helpers import CommentAttribute, RatingAttribute, ReviewerAttribute, \

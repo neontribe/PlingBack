@@ -1,18 +1,14 @@
-
 from pyramid.interfaces import IDebugLogger
 from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalServerError
 
-
-from talis import Talis
-from rdflib import Graph
 from rdflib import BNode, Literal, URIRef, Namespace
 import simplejson as json
 import random
 import urllib
+import uuid
 import datetime
 
 from plingback.namespaces import namespaces as ns
-from plingback.idgen import FeedbackIdManager
 from plingback.triples import make_feedback_uri, TripleFactory
 from webob.exc import HTTPUnauthorized
 
@@ -38,8 +34,6 @@ def create(request): #self, feedback_id=None, method=None):
     # Bug out early if there's no indication of what the feedback's about
     if not request.params.get('pling_id'):
         return HTTPBadRequest(detail='the request should specify a pling_id')
-        
-    feedback_id = None
     
     if request.method.lower() == 'get':
         mode = request.matchdict.get('method').upper()
@@ -50,8 +44,8 @@ def create(request): #self, feedback_id=None, method=None):
 
     #Arbitrate between POST and PUT requests
     if request.method.lower() == 'post':
-        id_mgr = FeedbackIdManager(request.context)
-        feedback_id = id_mgr.get_unique_feedback_id()
+        # Generate a UUID
+        feedback_id = str(uuid.uuid4())
         if not feedback_id:
             return HTTPInternalServerError(details='Failed to generate a unique feedback_id')
     elif request.method.lower() == 'put':

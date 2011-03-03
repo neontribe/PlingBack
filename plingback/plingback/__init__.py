@@ -85,14 +85,6 @@ def main(global_config, **settings):
                          view_renderer='json',
                          request_method='DELETE',
                          factory=TripleStore)
-   
-    # Shards of testing bits + maintanance1    
-    config.add_route('populate_id_pool',
-                     '/maintenance/ids/populate',
-                     view='plingback.maintenance.views.populate_id_pool',
-                     view_renderer='json',
-                     request_method='GET',
-                     factory=TripleStore)
     
     # Augmentations
     config.add_route('add_activity_nodes',

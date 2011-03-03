@@ -9,10 +9,6 @@ class FunctionalTests(unittest.TestCase):
                             'enable_delete':True}))
         from webtest import TestApp
         self.testapp = TestApp(app)
-        
-    def test_id_pool(self):
-        res = self.testapp.get('/maintenance/ids/populate')
-        
 
     def test_input_bare_post(self):
         """ Posts without a feedback target identifier should fail"""
