@@ -26,6 +26,7 @@ class TripleFactory(object):
         pling_id : the id of the activity under review
         plingback_type : the application submitting the feedback
         plingback_version : the version of the application (OPTIONAL)
+        submission_date : the datetime at which the feedback was collected (OPTIONAL - default now)
         """
                 
         # Validation!
@@ -33,6 +34,14 @@ class TripleFactory(object):
             return HTTPBadRequest(detail='Please supply a pling_id')
         pling_id = self.request.params.get('pling_id')
         pling = URIRef('http://plings.net/a/%s' % (pling_id))
+        
+        # Validation!
+        submitted = self.request.params.get('submission_date', None)
+        if submitted:
+            try:
+                submitted = datetime.datetime.strptime(submitted, '%Y-%m-%dT%H:%M:%S')
+            except ValueError:
+                return HTTPBadRequest(detail='"submission_date" should be supplied in "%Y-%m-%dT%H:%M:%S" (iso-8601) format')
     
        
         plingback_type = self.request.params.get('plingback_type',
@@ -44,7 +53,11 @@ class TripleFactory(object):
         self.context.store.add((pling, ns['REV']['hasReview'], self.feedback_uri))
         self.context.store.add((pling, ns['RDF']['type'], ns['PBO']['Activity']))
         self.context.store.add((self.feedback_uri, ns['PBO']['isAbout'], pling))
-        self.context.store.add((self.feedback_uri, ns['DC']['date'], Literal(datetime.datetime.now())))
+        
+        if submitted:
+            self.context.store.add((self.feedback_uri, ns['DC']['date'], Literal(submitted)))
+        else:
+            self.context.store.add((self.feedback_uri, ns['DC']['date'], Literal(datetime.datetime.now())))
         
         self.context.store.add((self.feedback_uri, ns['PBO']['plingBackType'], plingback_type_uri))
         if self.request.params.get('plingback_version'):

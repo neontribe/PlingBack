@@ -1,5 +1,6 @@
 import unittest
 import rdflib
+import datetime
 from rdflib import Graph
 from rdflib import BNode, Literal, URIRef, Namespace
 
@@ -41,6 +42,19 @@ class TripleFactoryTests(unittest.TestCase):
                                             'plingback_type':'automated_testing'})
         tf.init_feedback_node()
         self.failUnless(len([x for x in tf.request.context.store]) == 6)
+        
+    def test_init_feedback_node_with_submission_date(self):
+        datestring = '2011-02-21T15:36:00'
+        tf = self.configure_triple_factory('/api/plingbacks',
+                                           {'pling_id':'pling_id_value',
+                                            'plingback_type': 'automated_testing',
+                                            'submission_date': datestring })
+        tf.init_feedback_node()
+        date = tf.request.context.query("SELECT ?date WHERE { ?pb <%s> ?date }" % (ns['DC']['date']))
+        print date
+        self.assertEqual(str(date[0]), datestring)
+        
+        
         
     def test_remove_feedback_node(self):
         tf = self.configure_triple_factory('/api/plingbacks',
