@@ -10,21 +10,12 @@ import datetime
 
 from plingback.namespaces import namespaces as ns
 from plingback.triples import make_feedback_uri, TripleFactory
+from plingback.lib import set_trace
 from webob.exc import HTTPUnauthorized
 
 ID_POOL_SIZE = 20
 ID_CANDIDATE_LIMIT = 3
-MAX_ID_ATTEMPTS = 3
-
-def set_trace():
- 
-    import pdb, sys
-    sys.stdout = sys.__stdout__
-    sys.stdin = sys.__stdin__
-    debugger = pdb.Pdb()
-    debugger.set_trace(sys._getframe().f_back)
-
-                 
+MAX_ID_ATTEMPTS = 3                 
 
 def create(request): #self, feedback_id=None, method=None):
     """POST /api/plingbacks: Create a new feedback node generating an id
@@ -82,6 +73,7 @@ def create(request): #self, feedback_id=None, method=None):
     return output
 
 def attribute_handler(request):
+
     overwrite = False
     if request.method.lower() == 'get':
         mode = request.matchdict.get('method')
@@ -115,9 +107,6 @@ def delete(request):
         
     else:
         return HTTPUnauthorized()
-    
-        
-
     
 
 def show(self, feedback_id):

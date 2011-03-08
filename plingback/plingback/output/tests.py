@@ -1,12 +1,13 @@
 import unittest
-
+from pyramid.registry import Registry 
 from pyramid.config import Configurator
 from pyramid import testing
 from pyramid.mako_templating import MakoLookupTemplateRenderer, renderer_factory as mako_renderer_factory
-
+from webob.multidict import MultiDict
 from rdflib import Literal, URIRef
-
+from plingback.resources import TripleStore
 from plingback.output.formatter import ResultFormatter
+from plingback.output.views import handler
 
 class MockSPARQLGenerator(object):
     def __init__(self,
@@ -28,12 +29,10 @@ class MockSPARQLGenerator(object):
 class ResultFormatterTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-
         self.config.begin()
 
     def tearDown(self):
         testing.tearDown()
-
 
     def test_rating_output(self):       
         gen = MockSPARQLGenerator(scope='authorities', 
@@ -83,6 +82,29 @@ class ResultFormatterTests(unittest.TestCase):
         self.failUnless(rf == data)
         
         
+class OutputViewTest(unittest.TestCase):   
+    def setUp(self):
+
+        self.config = testing.setUp()
+        self.config.add_settings({'mako.directories':'plingback.sparql:templates',
+                                  'store_type':'rdflib',
+                                  'debug_sparql':False})
+        self.config.begin()
+
+    def tearDown(self):
+        testing.tearDown()
+    
+    def test_excercise_view(self):
+        class MatchedRoute:
+            name = 'scoped_attribute'
+        
+        request = testing.DummyRequest(path='/api/authorities/33UF/ratings',
+                                       params={},
+                                       matched_route = MatchedRoute(),
+                                       matchdict = {'id':'33UF', 'scope':'authorities','attribute':'ratings'})
+        request.context = TripleStore(request)
+        res = handler(request)
+        self.failUnless('33UF' in str(res))
         
         
    

@@ -5,7 +5,7 @@ class FunctionalTests(unittest.TestCase):
     def setUp(self):
         from plingback import main
         app = main({}, **({'store_type':'rdflib',
-                           'debug_sparql':True,
+                           'debug_sparql':False,
                             'enable_delete':True}))
         from webtest import TestApp
         self.testapp = TestApp(app)

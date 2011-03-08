@@ -20,10 +20,12 @@ class FeedbackAttribute(object):
     
     def triples(self):
         """Return a list of triples"""
-        try:
-            return self._make_triples()
-        except KeyError:
-            return []
+        return self._make_triples()
+        # Removed exception handling 'cos it was inexplicable
+        #try:
+        #    return self._make_triples()
+        #except KeyError:
+        #    return []
 
     def removal_query(self):
         """ Produce a sparql query to construct a set of triple which will be 

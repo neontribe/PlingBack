@@ -51,11 +51,18 @@ class TripleFactoryTests(unittest.TestCase):
                                             'submission_date': datestring })
         tf.init_feedback_node()
         date = tf.request.context.query("SELECT ?date WHERE { ?pb <%s> ?date }" % (ns['DC']['date']))
-        print date
         self.assertEqual(str(date[0]), datestring)
         
+    def test_init_feedback_node_with_bad_submission_date(self):
+        datestring = '2011-02-21 15:36:00'
+        tf = self.configure_triple_factory('/api/plingbacks',
+                                           {'pling_id':'pling_id_value',
+                                            'plingback_type': 'automated_testing',
+                                            'submission_date': datestring })
+        res = tf.init_feedback_node()
+        self.failUnless(isinstance(res, HTTPBadRequest))
         
-        
+
     def test_remove_feedback_node(self):
         tf = self.configure_triple_factory('/api/plingbacks',
                                            {'pling_id':'pling_id_value',

@@ -24,10 +24,12 @@ class TripleStore(object):
                 self.debug_sparql = self.request.registry.settings['debug_sparql']
             else:
                 self.store = Graph()
-                self.debug_sparql = True
+                self.debug_sparql = False
         else:
             self.store = Graph()
-            self.debug_sparql = True
+            self.debug_sparql = False
+            
+        
         
     def query(self, sparql, format='json'):
         
