@@ -46,8 +46,6 @@ def create(request): #self, feedback_id=None, method=None):
     if request.method.lower() == 'post':
         # Generate a UUID
         feedback_id = str(uuid.uuid4())
-        if not feedback_id:
-            return HTTPInternalServerError(details='Failed to generate a unique feedback_id')
     elif request.method.lower() == 'put':
         feedback_id = request.matchdict.get('feedback_id', None)
         if not feedback_id:
