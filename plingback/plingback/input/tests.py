@@ -127,7 +127,7 @@ class JSAPITests(InputControllerTests):
         request = self.mock_request('/api/plingbacks/888-999-111/rating',
                                     params,
                                     'HEAD')
-        self.assertRaises(HTTPBadRequest, create, request)
+        self.assertRaises(HTTPBadRequest, attribute_handler, request)
 
         
     
