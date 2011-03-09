@@ -28,9 +28,7 @@ class TripleStore(object):
         else:
             self.store = Graph()
             self.debug_sparql = False
-            
-        
-        
+              
     def query(self, sparql, format='json'):
         
         if self.debug_sparql:
