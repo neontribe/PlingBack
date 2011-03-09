@@ -31,7 +31,7 @@ class TripleFactory(object):
                 
         # Validation!
         if not self.request.params.get('pling_id'):
-            return HTTPBadRequest(detail='Please supply a pling_id')
+            raise HTTPBadRequest(detail='Please supply a pling_id')
         pling_id = self.request.params.get('pling_id')
         pling = URIRef('http://plings.net/a/%s' % (pling_id))
         
@@ -41,7 +41,7 @@ class TripleFactory(object):
             try:
                 submitted = datetime.datetime.strptime(submitted, '%Y-%m-%dT%H:%M:%S')
             except ValueError:
-                return HTTPBadRequest(detail='"submission_date" should be supplied in "%Y-%m-%dT%H:%M:%S" (iso-8601) format')
+                raise HTTPBadRequest(detail='"submission_date" should be supplied in "%Y-%m-%dT%H:%M:%S" (iso-8601) format')
     
        
         plingback_type = self.request.params.get('plingback_type',
@@ -127,8 +127,6 @@ class TripleFactory(object):
         for attribute in attributes:
             try:
                 triples = self.attribute_factory(attribute).triples()
-                if isinstance(triples, HTTPException):
-                    return triples
                 for triple in triples:
                     self.context.store.add(triple)
                 success.append(attribute)
@@ -151,10 +149,7 @@ class TripleFactory(object):
         removals = []
         for attribute in attributes:
             res = self._remove_feedback_attribute(attribute)
-            if isinstance(res, HTTPException):
-                return res
-            else:
-                removals.append(attribute)
+            removals.append(attribute)
         return removals
 
     def _remove_feedback_attribute(self, attribute_name):
@@ -168,7 +163,7 @@ class TripleFactory(object):
                 for triple in triples:
                     self.context.store.remove(triple)
         except KeyError:
-            return HTTPBadRequest(detail='Unknown feedback attribute supplied')
+            raise HTTPBadRequest(detail='Unknown feedback attribute supplied')
                    
         return 'Removed'
     

@@ -51,6 +51,21 @@ class InputControllerTests(unittest.TestCase):
                         'plingbackType':'automated_testing'})
         return initial
     
+    def test_misplaced_feedback_id(self):
+        params = self.mock_params({'feedback_id':'888999000'})
+        request = self.mock_request('/api/plingbacks',
+                                    params,
+                                    'PUT')
+        self.assertRaises(HTTPBadRequest, create, request)
+        
+    def test_missing_feedback_id(self):
+        params = self.mock_params()
+        request = self.mock_request('/api/plingbacks',
+                                    params,
+                                    'PUT')
+        self.assertRaises(HTTPBadRequest, create, request)
+
+    
     def test_create(self):
         params = self.mock_params()
         request = self.mock_request('/api/plingbacks',
@@ -65,8 +80,7 @@ class InputControllerTests(unittest.TestCase):
         request = self.mock_request('/api/plingbacks',
                                     params,
                                     'POST')
-        res = create(request)
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.assertRaises(HTTPBadRequest, create, request)
         
     def test_put_attribute(self):
         params = self.mock_params({'feedback_attribute':'rating',
@@ -78,6 +92,24 @@ class InputControllerTests(unittest.TestCase):
         res = attribute_handler(request)
         self.failUnless('888-999-111' in str(res))
         
+    def test_delete_attribute(self):
+        self.config.add_settings({'enable_delete':True})
+        params = self.mock_params({})
+        request = self.mock_request('/api/plingbacks/999-999-111',
+                                    params,
+                                    'DELETE',
+                                    '999-999-111')
+        res = delete(request)
+        self.failUnless(res.status == '204 No Content')
+        
+    def test_delete_disabled(self):
+        params = self.mock_params({})
+        request = self.mock_request('/api/plingbacks/999-999-111',
+                                    params,
+                                    'DELETE',
+                                    '999-999-111')
+        self.assertRaises(HTTPUnauthorized, delete, request)
+        
 class JSAPITests(InputControllerTests):
     """ Repeat all the input api test through the JSAPI layer"""
     
@@ -88,29 +120,14 @@ class JSAPITests(InputControllerTests):
         request = self.mock_request('/api/plingbacks',
                                     params,
                                     'HEAD')
-        res = create(request)
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.assertRaises(HTTPBadRequest, create, request)
     
     def test_attribute_bad_method(self):
         params = self.mock_params()
         request = self.mock_request('/api/plingbacks/888-999-111/rating',
                                     params,
                                     'HEAD')
-        res = attribute_handler(request)
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.assertRaises(HTTPBadRequest, create, request)
+
         
-    def test_misplaced_feedback_id(self):
-        params = self.mock_params({'feedback_id':'888999000'})
-        request = self.mock_request('/api/plingbacks',
-                                    params,
-                                    'PUT')
-        res = create(request)
-        self.failUnless(isinstance(res, HTTPBadRequest))
-        
-    def test_missing_feedback_id(self):
-        params = self.mock_params()
-        request = self.mock_request('/api/plingbacks',
-                                    params,
-                                    'PUT')
-        res = create(request)
-        self.failUnless(isinstance(res, HTTPBadRequest))
+    

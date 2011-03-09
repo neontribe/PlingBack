@@ -59,8 +59,7 @@ class TripleFactoryTests(unittest.TestCase):
                                            {'pling_id':'pling_id_value',
                                             'plingback_type': 'automated_testing',
                                             'submission_date': datestring })
-        res = tf.init_feedback_node()
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.failUnlessRaises(HTTPBadRequest, tf.init_feedback_node)
         
 
     def test_remove_feedback_node(self):
@@ -76,8 +75,8 @@ class TripleFactoryTests(unittest.TestCase):
     def test_missing_feedback_target(self):
         tf = self.configure_triple_factory('/api/plingbacks',
                                            {})
-        res = tf.init_feedback_node()
-        self.failUnless(isinstance(res, HTTPBadRequest))
+
+        self.failUnlessRaises(HTTPBadRequest, tf.init_feedback_node)
         
     def test_init_feedback_node_with_version(self):
         tf = self.configure_triple_factory('/api/plingbacks',
@@ -110,8 +109,7 @@ class TripleFactoryTests(unittest.TestCase):
                                                'feedback_attribute':'rating',
                                                'rating_value':'NaN',
                                                     'plingback_type':'automated_testing'})
-        res = tf.add_attribute()
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.failUnlessRaises(HTTPBadRequest, tf.add_attribute)
         self.failUnless(len([x for x in tf.request.context.store]) == 0)
         
     def test_remove_rating_attribute(self):
@@ -201,8 +199,7 @@ class TripleFactoryTests(unittest.TestCase):
                                             'feedback_attribute':'approval',
                                             'approval_value':'NaN',
                                             'plingback_type':'automated_testing'})
-        res = tf.add_attribute()
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.failUnlessRaises(HTTPBadRequest, tf.add_attribute)
         self.failUnless(len([x for x in tf.request.context.store]) == 0)
         
     def test_remove_approval_attribute(self):
@@ -349,6 +346,5 @@ class TripleFactoryTests(unittest.TestCase):
                                             'feedback_attribute[]':'faux',
                                             'faux_value':'oddity',
                                             'plingback_type':'automated_testing'})
-        res = tf.remove_attribute()
-        self.failUnless(isinstance(res, HTTPBadRequest))
+        self.failUnlessRaises(HTTPBadRequest, tf.remove_attribute)
 

@@ -75,7 +75,7 @@ class RatingAttribute(FeedbackAttribute):
             rating = '.' in value and float(value) or int(value)
             return [(self.feedback_uri, ns['REV']['rating'], Literal(rating))]
         except ValueError:
-            return HTTPBadRequest(detail='Value "%s" cannot be converted to a numeric type' % (value))
+            raise HTTPBadRequest(detail='Value "%s" cannot be converted to a numeric type' % (value))
 
         
     def removal_query(self):
@@ -106,7 +106,7 @@ class ApprovalAttribute(FeedbackAttribute):
             approval = '.' in value and float(value) or int(value)
             return [(self.feedback_uri, ns['PBO']['approval'], Literal(approval))]
         except ValueError:
-            return HTTPBadRequest(detail='Value "%s" cannot be converted to a numeric type' % (value))
+            raise HTTPBadRequest(detail='Value "%s" cannot be converted to a numeric type' % (value))
         
     def removal_query(self):
         query = "PREFIX pbo: <%s> "

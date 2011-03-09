@@ -1,5 +1,6 @@
 import unittest
 import simplejson as json
+from pyramid.httpexceptions import *
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
@@ -12,12 +13,12 @@ class FunctionalTests(unittest.TestCase):
 
     def test_input_bare_post(self):
         """ Posts without a feedback target identifier should fail"""
-        res = self.testapp.post('/api/plingbacks', {}, status=400)
+        self.assertRaises(HTTPBadRequest, self.testapp.post, '/api/plingbacks', {})
         
         
     def test_input_bare_put(self):
         """ Puts without a feedback target identifier should fail"""
-        res = self.testapp.put('/api/plingbacks/unique_id', {}, status=400)
+        self.assertRaises(HTTPBadRequest, self.testapp.put, '/api/plingbacks/unique_id', {})
         
         
     def test_input_post(self):
@@ -34,7 +35,7 @@ class FunctionalTests(unittest.TestCase):
         self.failUnless(res.headers.has_key('Location'))
         self.failUnless('application/json' in res.headers['Content-Type'])
         res = self.testapp.delete('/api/plingbacks/test_id_3')
-        self.assertEqual(res.status, '200 OK')
+        self.assertEqual(res.status, '204 No Content')     
         
     def test_input_post_rating(self):
         res = self.testapp.post('/api/plingbacks', {'pling_id':'1019868',
