@@ -1,0 +1,458 @@
+<?xml version="1.0"?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta name="dtb:uid" content="unknown"/>
+    <meta name="dtb:depth" content="3"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle>
+    <text>PlingBack v0.5rc1 documentation</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint1" playOrder="1">
+      <navLabel>
+        <text>Welcome to the PlingBack Documentation</text>
+      </navLabel>
+      <content src="index.html" />
+    </navPoint>
+    <navPoint id="navPoint2" playOrder="2">
+      <navLabel>
+        <text>http://www.plings.net</text>
+      </navLabel>
+      <content src="http://www.plings.net" />
+    </navPoint>
+    <navPoint id="navPoint3" playOrder="3">
+      <navLabel>
+        <text>Widgets Overview</text>
+      </navLabel>
+      <content src="about_the_widgets.html" />
+      <navPoint id="navPoint3" playOrder="3">
+        <navLabel>
+          <text>Widgets Overview</text>
+        </navLabel>
+        <content src="about_the_widgets.html" />
+      </navPoint>
+      <navPoint id="navPoint4" playOrder="4">
+        <navLabel>
+          <text>FastFeedback</text>
+        </navLabel>
+        <content src="about_the_widgets.html#fastfeedback" />
+      </navPoint>
+      <navPoint id="navPoint5" playOrder="5">
+        <navLabel>
+          <text>TopBar</text>
+        </navLabel>
+        <content src="about_the_widgets.html#topbar" />
+      </navPoint>
+      <navPoint id="navPoint6" playOrder="6">
+        <navLabel>
+          <text>Plingback Button</text>
+        </navLabel>
+        <content src="about_the_widgets.html#plingback-button" />
+      </navPoint>
+      <navPoint id="navPoint7" playOrder="7">
+        <navLabel>
+          <text>Groupback</text>
+        </navLabel>
+        <content src="about_the_widgets.html#groupback" />
+      </navPoint>
+      <navPoint id="navPoint8" playOrder="8">
+        <navLabel>
+          <text>Greasemonkey Demo</text>
+        </navLabel>
+        <content src="about_the_widgets.html#greasemonkey-demo" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint9" playOrder="9">
+      <navLabel>
+        <text>Deploying the Widgets</text>
+      </navLabel>
+      <content src="deploy_the_widgets.html" />
+      <navPoint id="navPoint9" playOrder="9">
+        <navLabel>
+          <text>Deploying the Widgets</text>
+        </navLabel>
+        <content src="deploy_the_widgets.html" />
+      </navPoint>
+      <navPoint id="navPoint10" playOrder="10">
+        <navLabel>
+          <text>Quickstart</text>
+        </navLabel>
+        <content src="deploy_the_widgets.html#quickstart" />
+      </navPoint>
+      <navPoint id="navPoint11" playOrder="11">
+        <navLabel>
+          <text>Additional Configuration Options</text>
+        </navLabel>
+        <content src="deploy_the_widgets.html#additional-configuration-options" />
+      </navPoint>
+      <navPoint id="navPoint12" playOrder="12">
+        <navLabel>
+          <text>Examples</text>
+        </navLabel>
+        <content src="deploy_the_widgets.html#examples" />
+        <navPoint id="navPoint12" playOrder="12">
+          <navLabel>
+            <text>Examples</text>
+          </navLabel>
+          <content src="deploy_the_widgets.html#examples" />
+        </navPoint>
+        <navPoint id="navPoint13" playOrder="13">
+          <navLabel>
+            <text>FastFeedback</text>
+          </navLabel>
+          <content src="deploy_the_widgets.html#fastfeedback" />
+        </navPoint>
+        <navPoint id="navPoint14" playOrder="14">
+          <navLabel>
+            <text>TopBar</text>
+          </navLabel>
+          <content src="deploy_the_widgets.html#topbar" />
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint15" playOrder="15">
+      <navLabel>
+        <text>Modal Presentations For Widgets</text>
+      </navLabel>
+      <content src="modal_widgets.html" />
+      <navPoint id="navPoint15" playOrder="15">
+        <navLabel>
+          <text>Modal Presentations For Widgets</text>
+        </navLabel>
+        <content src="modal_widgets.html" />
+      </navPoint>
+      <navPoint id="navPoint16" playOrder="16">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="modal_widgets.html#overview" />
+      </navPoint>
+      <navPoint id="navPoint17" playOrder="17">
+        <navLabel>
+          <text>Deployment</text>
+        </navLabel>
+        <content src="modal_widgets.html#deployment" />
+        <navPoint id="navPoint17" playOrder="17">
+          <navLabel>
+            <text>Deployment</text>
+          </navLabel>
+          <content src="modal_widgets.html#deployment" />
+        </navPoint>
+        <navPoint id="navPoint18" playOrder="18">
+          <navLabel>
+            <text>Button Styling</text>
+          </navLabel>
+          <content src="modal_widgets.html#button-styling" />
+        </navPoint>
+        <navPoint id="navPoint19" playOrder="19">
+          <navLabel>
+            <text>Delaying Initialisation</text>
+          </navLabel>
+          <content src="modal_widgets.html#delaying-initialisation" />
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint20" playOrder="20">
+      <navLabel>
+        <text>Groupback - collecting feedback on the spot</text>
+      </navLabel>
+      <content src="groupback.html" />
+      <navPoint id="navPoint20" playOrder="20">
+        <navLabel>
+          <text>Groupback - collecting feedback on the spot</text>
+        </navLabel>
+        <content src="groupback.html" />
+      </navPoint>
+      <navPoint id="navPoint21" playOrder="21">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="groupback.html#overview" />
+      </navPoint>
+      <navPoint id="navPoint22" playOrder="22">
+        <navLabel>
+          <text>Using Groupback</text>
+        </navLabel>
+        <content src="groupback.html#using-groupback" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint23" playOrder="23">
+      <navLabel>
+        <text>The Plingback Input API</text>
+      </navLabel>
+      <content src="restapi.html" />
+      <navPoint id="navPoint23" playOrder="23">
+        <navLabel>
+          <text>The Plingback Input API</text>
+        </navLabel>
+        <content src="restapi.html" />
+      </navPoint>
+      <navPoint id="navPoint24" playOrder="24">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="restapi.html#overview" />
+      </navPoint>
+      <navPoint id="navPoint25" playOrder="25">
+        <navLabel>
+          <text>Feedback Identifiers</text>
+        </navLabel>
+        <content src="restapi.html#feedback-identifiers" />
+      </navPoint>
+      <navPoint id="navPoint26" playOrder="26">
+        <navLabel>
+          <text>Submitting Feedback</text>
+        </navLabel>
+        <content src="restapi.html#submitting-feedback" />
+        <navPoint id="navPoint26" playOrder="26">
+          <navLabel>
+            <text>Submitting Feedback</text>
+          </navLabel>
+          <content src="restapi.html#submitting-feedback" />
+        </navPoint>
+        <navPoint id="navPoint27" playOrder="27">
+          <navLabel>
+            <text>Required Request Parameters</text>
+          </navLabel>
+          <content src="restapi.html#required-request-parameters" />
+        </navPoint>
+        <navPoint id="navPoint28" playOrder="28">
+          <navLabel>
+            <text>Optional Request Parameters</text>
+          </navLabel>
+          <content src="restapi.html#optional-request-parameters" />
+        </navPoint>
+        <navPoint id="navPoint29" playOrder="29">
+          <navLabel>
+            <text>Feedback Attribute Parameters</text>
+          </navLabel>
+          <content src="restapi.html#feedback-attribute-parameters" />
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint30" playOrder="30">
+        <navLabel>
+          <text>Evaluating Responses</text>
+        </navLabel>
+        <content src="restapi.html#evaluating-responses" />
+      </navPoint>
+      <navPoint id="navPoint31" playOrder="31">
+        <navLabel>
+          <text>JSAPI - Working Around Cross Domain issues</text>
+        </navLabel>
+        <content src="restapi.html#jsapi-working-around-cross-domain-issues" />
+      </navPoint>
+      <navPoint id="navPoint32" playOrder="32">
+        <navLabel>
+          <text>Examples</text>
+        </navLabel>
+        <content src="restapi.html#examples" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint33" playOrder="33">
+      <navLabel>
+        <text>Plingback Output API</text>
+      </navLabel>
+      <content src="plingback_output_api.html" />
+      <navPoint id="navPoint33" playOrder="33">
+        <navLabel>
+          <text>Plingback Output API</text>
+        </navLabel>
+        <content src="plingback_output_api.html" />
+      </navPoint>
+      <navPoint id="navPoint34" playOrder="34">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="plingback_output_api.html#overview" />
+      </navPoint>
+      <navPoint id="navPoint35" playOrder="35">
+        <navLabel>
+          <text>Additional Parameters</text>
+        </navLabel>
+        <content src="plingback_output_api.html#additional-parameters" />
+        <navPoint id="navPoint35" playOrder="35">
+          <navLabel>
+            <text>Additional Parameters</text>
+          </navLabel>
+          <content src="plingback_output_api.html#additional-parameters" />
+        </navPoint>
+        <navPoint id="navPoint36" playOrder="36">
+          <navLabel>
+            <text>Date Ranges</text>
+          </navLabel>
+          <content src="plingback_output_api.html#date-ranges" />
+        </navPoint>
+        <navPoint id="navPoint37" playOrder="37">
+          <navLabel>
+            <text>Pagination</text>
+          </navLabel>
+          <content src="plingback_output_api.html#pagination" />
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint38" playOrder="38">
+        <navLabel>
+          <text>Comments</text>
+        </navLabel>
+        <content src="plingback_output_api.html#comments" />
+      </navPoint>
+      <navPoint id="navPoint39" playOrder="39">
+        <navLabel>
+          <text>Ratings</text>
+        </navLabel>
+        <content src="plingback_output_api.html#ratings" />
+      </navPoint>
+      <navPoint id="navPoint40" playOrder="40">
+        <navLabel>
+          <text>Feedback Totals</text>
+        </navLabel>
+        <content src="plingback_output_api.html#feedback-totals" />
+      </navPoint>
+      <navPoint id="navPoint41" playOrder="41">
+        <navLabel>
+          <text>JSONP</text>
+        </navLabel>
+        <content src="plingback_output_api.html#jsonp" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint42" playOrder="42">
+      <navLabel>
+        <text>Data Structures</text>
+      </navLabel>
+      <content src="data_structures.html" />
+      <navPoint id="navPoint42" playOrder="42">
+        <navLabel>
+          <text>Data Structures</text>
+        </navLabel>
+        <content src="data_structures.html" />
+      </navPoint>
+      <navPoint id="navPoint43" playOrder="43">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="data_structures.html#overview" />
+      </navPoint>
+      <navPoint id="navPoint44" playOrder="44">
+        <navLabel>
+          <text>Modelling</text>
+        </navLabel>
+        <content src="data_structures.html#modelling" />
+        <navPoint id="navPoint44" playOrder="44">
+          <navLabel>
+            <text>Modelling</text>
+          </navLabel>
+          <content src="data_structures.html#modelling" />
+        </navPoint>
+        <navPoint id="navPoint45" playOrder="45">
+          <navLabel>
+            <text>Modelling the Feedback Node</text>
+          </navLabel>
+          <content src="data_structures.html#modelling-the-feedback-node" />
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint46" playOrder="46">
+        <navLabel>
+          <text>Examples</text>
+        </navLabel>
+        <content src="data_structures.html#examples" />
+        <navPoint id="navPoint46" playOrder="46">
+          <navLabel>
+            <text>Examples</text>
+          </navLabel>
+          <content src="data_structures.html#examples" />
+        </navPoint>
+        <navPoint id="navPoint47" playOrder="47">
+          <navLabel>
+            <text>Graph Visualisations</text>
+          </navLabel>
+          <content src="data_structures.html#graph-visualisations" />
+        </navPoint>
+        <navPoint id="navPoint48" playOrder="48">
+          <navLabel>
+            <text>SPARQL Examples</text>
+          </navLabel>
+          <content src="data_structures.html#sparql-examples" />
+        </navPoint>
+        <navPoint id="navPoint49" playOrder="49">
+          <navLabel>
+            <text>Live Examples</text>
+          </navLabel>
+          <content src="data_structures.html#live-examples" />
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint50" playOrder="50">
+      <navLabel>
+        <text>Missing Features</text>
+      </navLabel>
+      <content src="missing_features.html" />
+      <navPoint id="navPoint50" playOrder="50">
+        <navLabel>
+          <text>Missing Features</text>
+        </navLabel>
+        <content src="missing_features.html" />
+      </navPoint>
+      <navPoint id="navPoint51" playOrder="51">
+        <navLabel>
+          <text>Widgets</text>
+        </navLabel>
+        <content src="missing_features.html#widgets" />
+        <navPoint id="navPoint51" playOrder="51">
+          <navLabel>
+            <text>Widgets</text>
+          </navLabel>
+          <content src="missing_features.html#widgets" />
+        </navPoint>
+        <navPoint id="navPoint52" playOrder="52">
+          <navLabel>
+            <text>Fastfeedback</text>
+          </navLabel>
+          <content src="missing_features.html#fastfeedback" />
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint53" playOrder="53">
+        <navLabel>
+          <text>API</text>
+        </navLabel>
+        <content src="missing_features.html#api" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint54" playOrder="54">
+      <navLabel>
+        <text>SPARQL Examples</text>
+      </navLabel>
+      <content src="sparql_examples.html" />
+      <navPoint id="navPoint54" playOrder="54">
+        <navLabel>
+          <text>SPARQL Examples</text>
+        </navLabel>
+        <content src="sparql_examples.html" />
+      </navPoint>
+      <navPoint id="navPoint55" playOrder="55">
+        <navLabel>
+          <text>Overview</text>
+        </navLabel>
+        <content src="sparql_examples.html#overview" />
+      </navPoint>
+    </navPoint>
+    <navPoint id="navPoint56" playOrder="56">
+      <navLabel>
+        <text>Index</text>
+      </navLabel>
+      <content src="genindex.html" />
+    </navPoint>
+    <navPoint id="navPoint57" playOrder="57">
+      <navLabel>
+        <text>Module Index</text>
+      </navLabel>
+      <content src="py-modindex.html" />
+    </navPoint>
+    <navPoint id="navPoint58" playOrder="58">
+      <navLabel>
+        <text>Search Page</text>
+      </navLabel>
+      <content src="search.html" />
+    </navPoint>
+  </navMap>
+</ncx>

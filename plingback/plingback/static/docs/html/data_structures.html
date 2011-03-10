@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data Structures &mdash; PlingBack v0.5rc1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PlingBack v0.5rc1 documentation" href="index.html" />
+    <link rel="next" title="<no title>" href="developer_resources.html" />
+    <link rel="prev" title="Plingback Output API" href="plingback_output_api.html" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="developer_resources.html" title="<no title>"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plingback_output_api.html" title="Plingback Output API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Structures</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#modelling">Modelling</a><ul>
+<li><a class="reference internal" href="#modelling-the-feedback-node">Modelling the Feedback Node</a><ul>
+<li><a class="reference internal" href="#identifying-the-pling">Identifying the Pling</a></li>
+<li><a class="reference internal" href="#recording-a-timestamp">Recording a Timestamp</a></li>
+<li><a class="reference internal" href="#marking-the-node-as-a-review">Marking the Node as a Review</a></li>
+<li><a class="reference internal" href="#recording-client-application-details">Recording Client Application Details</a></li>
+<li><a class="reference internal" href="#a-fully-initialised-feedback-node">A Fully Initialised Feedback Node</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#graph-visualisations">Graph Visualisations</a><ul>
+<li><a class="reference internal" href="#base-feedback-node-visualisation">Base Feedback Node (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-attendance-visualisation">Feedback Node with Attendance (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-deterrents-visualisation">Feedback Node with Deterrents (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-rating-visualisation">Feedback Node with Rating (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-comment-visualisation">Feedback Node with Comment (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-reviewer-visualisation">Feedback Node with Reviewer (visualisation)</a></li>
+<li><a class="reference internal" href="#feedback-node-with-reviewer-facebook-details-visualisation">Feedback Node with Reviewer Facebook Details (visualisation)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sparql-examples">SPARQL Examples</a><ul>
+<li><a class="reference internal" href="#namespaces">Namespaces</a></li>
+<li><a class="reference internal" href="#queries">Queries</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#live-examples">Live Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="plingback_output_api.html"
+                        title="previous chapter">Plingback Output API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="developer_resources.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/data_structures.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data-structures">
+<h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The Plingback API uses the <a class="reference external" href="http://www.talis.com/platform/">Talis</a> Platform to persist feedback data. This section
+describes the data model for the feedback node and its various attributes.</p>
+<p>In order to assist other systems in making use of the feedback data efforts have
+been made to reuse existing ontologies as far as possible. Where existing
+ontologies haven&#8217;t been found to describe the data new ones have been
+invented. These new ontologies are subject to change.</p>
+<p>Currently the custom ontology has the namespace:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/ontologies/plingback#</pre>
+</div>
+</div>
+<div class="section" id="modelling">
+<h2>Modelling<a class="headerlink" href="#modelling" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modelling-the-feedback-node">
+<h3>Modelling the Feedback Node<a class="headerlink" href="#modelling-the-feedback-node" title="Permalink to this headline">¶</a></h3>
+<p>Each time that feedback is submitted to the system a feedback node is created.
+The node is a URI formed in the namespace:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/pb/</pre>
+</div>
+<p>Each node has a unique identifier in the namespace (for more details see
+<a class="reference internal" href="restapi.html#feedback-identifiers-label"><em>Feedback Identifiers</em></a>) yielding URIs of the form:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/pb/BD402341-1ED3-4EEE-A2C0-DCF87658A01B</pre>
+</div>
+<p>We initialize the node by writing a sequence of triples, each has the URI as its
+subject, our intentions are to:</p>
+<blockquote>
+<ul class="simple">
+<li>Identify the plings activity which this feedback describes</li>
+<li>Record a timestamp for the feedback submission</li>
+<li>Indicate that this URI can be treated as a &#8216;Review&#8217; conforming to a widely used vocabulary</li>
+<li>Record which client application was used to submit the feedback</li>
+<li><em>(optionally)</em> Record the version of the client application</li>
+</ul>
+</blockquote>
+<div class="section" id="identifying-the-pling">
+<h4>Identifying the Pling<a class="headerlink" href="#identifying-the-pling" title="Permalink to this headline">¶</a></h4>
+<p>No existing predicate could be found for declaring that a URI provides
+supplementary information about an activity recorded in the plings database.
+Whilst some general purpose vocabularies provide the means to to this
+<em>in a general sense</em> it was felt that they were liable to misinterpretation.</p>
+<p>Accordingly a predicate <cite>isAbout</cite> has been added to the <a class="reference external" href="http://plingback.plings.net/ontologies">http://plingback.plings.net/ontologies</a>/plingback#
+ontology. The object of an <cite>isAbout</cite> triple should be a URI such as:</p>
+<div class="highlight-python"><pre>http://plings.net/a/456740</pre>
+</div>
+<p>Which uniquely identifies an activity.</p>
+</div>
+<div class="section" id="recording-a-timestamp">
+<h4>Recording a Timestamp<a class="headerlink" href="#recording-a-timestamp" title="Permalink to this headline">¶</a></h4>
+<p>We make use of the <cite>date</cite> element from the vocabulary of Dublin Core metadata to
+record a timestamp:</p>
+<div class="highlight-python"><pre>http://purl.org/dc/elements/1.1/date</pre>
+</div>
+<p>The value which is stores is a string serialization of a UTC date time object
+such as that returned by python&#8217;s <cite>datetime.now()</cite></p>
+</div>
+<div class="section" id="marking-the-node-as-a-review">
+<h4>Marking the Node as a Review<a class="headerlink" href="#marking-the-node-as-a-review" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>RDF Review Vocabulary</cite> provides a convenient, widely-used and expressive means
+to model reviews and ratings. Plingbacks uses it extensively. It is to be found at:</p>
+<div class="highlight-python"><pre>http://purl.org/stuff/rev#</pre>
+</div>
+<p>In order to mark our feedback node as a <cite>Review</cite> under this vocabulary we use:</p>
+<div class="highlight-python"><pre>http://www.w3.org/TR/rdf-schema/type</pre>
+</div>
+</div>
+<div class="section" id="recording-client-application-details">
+<h4>Recording Client Application Details<a class="headerlink" href="#recording-client-application-details" title="Permalink to this headline">¶</a></h4>
+<p>We use two predicates from the <cite>plingback</cite> ontology to record the name and version
+of the software which the respondant used to give their feedback:</p>
+<blockquote>
+<ul class="simple">
+<li><cite>plingBackType</cite></li>
+<li><cite>plingBackVersion</cite></li>
+</ul>
+</blockquote>
+<p>Currently the objects of these predicates are expected to be string values.</p>
+</div>
+<div class="section" id="a-fully-initialised-feedback-node">
+<h4>A Fully Initialised Feedback Node<a class="headerlink" href="#a-fully-initialised-feedback-node" title="Permalink to this headline">¶</a></h4>
+<p>It&#8217;s convenient at this point to visualise a node which has been created according
+to this scheme: <a class="reference internal" href="#vis-base-feedback"><em>Base Feedback Node (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-attendance"><em>Feedback Node with Attendance (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-deterrent"><em>Feedback Node with Deterrents (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-rating"><em>Feedback Node with Rating (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-comment"><em>Feedback Node with Comment (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-reviewer"><em>Feedback Node with Reviewer (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-reviewer-facebook"><em>Feedback Node with Reviewer Facebook Details (visualisation)</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="graph-visualisations">
+<h3>Graph Visualisations<a class="headerlink" href="#graph-visualisations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="base-feedback-node-visualisation">
+<span id="vis-base-feedback"></span><h4>Base Feedback Node (visualisation)<a class="headerlink" href="#base-feedback-node-visualisation" title="Permalink to this headline">¶</a></h4>
+<img alt="_images/fastfeedback_node.png" src="_images/fastfeedback_node.png" />
+</div>
+<div class="section" id="feedback-node-with-attendance-visualisation">
+<span id="vis-attendance"></span><h4>Feedback Node with Attendance (visualisation)<a class="headerlink" href="#feedback-node-with-attendance-visualisation" title="Permalink to this headline">¶</a></h4>
+<img alt="_images/fastfeedback_node_attendance.png" src="_images/fastfeedback_node_attendance.png" />
+</div>
+<div class="section" id="feedback-node-with-deterrents-visualisation">
+<span id="vis-deterrent"></span><h4>Feedback Node with Deterrents (visualisation)<a class="headerlink" href="#feedback-node-with-deterrents-visualisation" title="Permalink to this headline">¶</a></h4>
+<img alt="_images/fastfeedback_node_deterrents.png" src="_images/fastfeedback_node_deterrents.png" />
+</div>
+<div class="section" id="feedback-node-with-rating-visualisation">
+<span id="vis-rating"></span><h4>Feedback Node with Rating (visualisation)<a class="headerlink" href="#feedback-node-with-rating-visualisation" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<img alt="_images/fastfeedback_node_rating.png" src="_images/fastfeedback_node_rating.png" />
+</blockquote>
+</div>
+<div class="section" id="feedback-node-with-comment-visualisation">
+<span id="vis-comment"></span><h4>Feedback Node with Comment (visualisation)<a class="headerlink" href="#feedback-node-with-comment-visualisation" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<img alt="_images/fastfeedback_node_comment.png" src="_images/fastfeedback_node_comment.png" />
+</blockquote>
+</div>
+<div class="section" id="feedback-node-with-reviewer-visualisation">
+<span id="vis-reviewer"></span><h4>Feedback Node with Reviewer (visualisation)<a class="headerlink" href="#feedback-node-with-reviewer-visualisation" title="Permalink to this headline">¶</a></h4>
+<img alt="_images/fastfeedback_node_reviewer_email.png" src="_images/fastfeedback_node_reviewer_email.png" />
+</div>
+<div class="section" id="feedback-node-with-reviewer-facebook-details-visualisation">
+<span id="vis-reviewer-facebook"></span><h4>Feedback Node with Reviewer Facebook Details (visualisation)<a class="headerlink" href="#feedback-node-with-reviewer-facebook-details-visualisation" title="Permalink to this headline">¶</a></h4>
+<img alt="_images/fastfeedback_node_reviewer_facebook.png" src="_images/fastfeedback_node_reviewer_facebook.png" />
+</div>
+</div>
+<div class="section" id="sparql-examples">
+<h3>SPARQL Examples<a class="headerlink" href="#sparql-examples" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="namespaces">
+<h4>Namespaces<a class="headerlink" href="#namespaces" title="Permalink to this headline">¶</a></h4>
+</div>
+<div class="section" id="queries">
+<h4>Queries<a class="headerlink" href="#queries" title="Permalink to this headline">¶</a></h4>
+</div>
+</div>
+<div class="section" id="live-examples">
+<h3>Live Examples<a class="headerlink" href="#live-examples" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="developer_resources.html" title="<no title>"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="plingback_output_api.html" title="Plingback Output API"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

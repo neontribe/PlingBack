@@ -1,0 +1,22 @@
+****************
+Missing Features
+****************
+
+This document outlines features which are currently absent from the widgets or 
+the api. It may be that there are reasons why the feature can not be implemented,
+it may be planned for a future release, or it may be waiting to be requested. 
+They're marked accordingly.
+
+Widgets
+=======
+
+Fastfeedback
+------------
+
+    * Make being anonymous a top level choice in Fastfeedback (**PLANNED**)
+
+API
+===
+
+    * Allow ``success_redirect`` and ``failure_redirect`` to be specified in order to redirect the browser to thank you pages etc. when using a form post. (**AWAITING REQUEST**)
+    * Allow a ``callback`` parameter to be specified in order to trigger responses in JSONP format (**AWAITING REQUEST**)

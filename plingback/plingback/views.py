@@ -1,2 +1,8 @@
-def my_view(request):
-    return {'project':'plingback'}
+
+
+def index(request):
+    root_url = request.registry.settings.get('root_url', '')
+    return {'root_url': root_url}
+
+    
+    

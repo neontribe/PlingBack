@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Plingback Bar Widget</title>
+        
+        <link rel="stylesheet" type="text/css" href="/widgets/plingbackbar/plingbackbar.css"/>
+        <link rel="stylesheet" type="text/css" href="/widgets/libs/jquery.ui.stars.css"/>
+        
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+        	
+            // Load jQuery
+            google.load("jquery", "1.4.2");
+            google.load("jqueryui", "1.8.1");
+            google.setOnLoadCallback(function() {
+                $(document).ready(function() {
+				    pbb.ui.init();
+                    pbb.configure();
+                
+                    pbb.api.init();  
+                    pbb.fb.ui.init();
+                    
+                });            
+            });
+
+		</script>
+    <script type="text/javascript" src="/widgets/plingbackbar/plingbackbar-bundle.js"></script>
+			
+		<script type="text/javascript">
+		
+			var preLoadImages = function() {
+				var cache = [];
+				var args_len = arguments.length;
+					for (var i = args_len; i--;) {
+						var cacheImage = document.createElement('img');
+						cacheImage.src = arguments[i];
+						cache.push(cacheImage);
+					}
+				};	
+			
+			preLoadImages("images/sign_tip.png", "images/loading_cog.gif", "images/deterrent_tip.png", "images/noattend_boredom.png", "images/noattend_confusion.png", "images/noattend_money.png", "images/noattend_time.png", "images/noattend_travel.png");
+			
+			$(document).ready(function(){
+				$.preloadCssImages();
+				
+				$('#deterrent label').toggle(function(event) {
+						event.preventDefault();
+						$(this)
+							//.mouseout(function(event) {
+								//console.log(event);
+								//$(event.target)
+								.addClass('chosen')
+								.hover(function() {
+									if ($(this).hasClass('chosen')) {
+									$(this).addClass('hover');
+									}
+								}, function() {
+									$(this).removeClass('hover');
+								})
+							//})
+							.next('input[type=checkbox]')
+							.attr('checked', 'checked');
+						
+					}, function(event) {
+						event.preventDefault();
+						$(this)
+							.removeClass('chosen hover')
+							.next('input[type=checkbox]')
+							.attr('checked', '');
+					});
+				
+			});
+			
+        </script>
+        
+        
+  
+    </head>
+    <body>
+        <div id="wrapper">
+        <div id="widget-loading">
+            <img src="images/loading_cog.gif" alt="" /><br/>
+            ...loading...
+        </div>
+        <h1><img src="images/logo.png" alt="feedback widget"/><span>Plings Feedback Widget</span></h1>
+            
+            <form id="pbform" action="">
+              <fieldset id="attendance">
+              <legend>Attendance</legend>
+              <h2>Going/went?</h2>
+              <a href="#" id="yes-no" class="yes"></a>
+                <label for="attendance1">Yes:</label>
+                  <input id="attendance1" type="radio" class="attendance true" name="attendance_value" checked="checked" value="attended"/>
+                <label for="attendance1">No:</label>
+                  <input id="attendance2" type="radio" class="attendance false" name="attendance_value" value="didNotAttend"/>         
+                <input type="hidden" name="feedback_attribute" value="attendance"/>
+              </fieldset>
+              <fieldset id="rating">
+              <legend>Rating</legend>
+              <h2><span id="stars-cap"></span>Rate the activity?</h2>
+                <div id="stars">
+                    <div id="stars-wrap">
+                        <input type="radio" name="rating_value" value="20" title="Hated it"/>
+                        <input type="radio" name="rating_value" value="40" title="Pointless"/>
+                        <input type="radio" name="rating_value" value="60" title="Okay"/>
+                        <input type="radio" name="rating_value" value="80" title="Great"/>
+                        <input type="radio" name="rating_value" value="100" title="Loved it"/>
+                        <input type="hidden" name="feedback_attribute" value="rating"/>
+                    </div>
+                </div>
+              </fieldset>
+              <fieldset id="deterrent" style="display:none">
+                <legend>Reasons you didn't go</legend>
+                <h2>Why didn't you go?</h2>
+                <div id="deterrents">
+                    <!-- <a id="deterrent_transport" href="#nogo"><span><em style="color:#fff; z-indes:99999999; display:block; visibility:visible">Couldn't get there</em></span></a> -->
+                    <label id="deterrent_transport" for="transport"><span><em>Couldn't get there</em></span></label>
+                    <input id="transport" type="checkbox" name="deterrent_value" value="transport" />
+                    <!-- <a id="deterrent_cost" href="#nogo"><span><em>Too expensive</em></span></a> -->
+                    <label id="deterrent_cost" for="cost"><span><em>Too expensive</em></span></label>
+                    <input id="cost" type="checkbox" name="deterrent_value" value="cost" />
+                    <!-- <a id="deterrent_publicity" href="#nogo"><span><em>Didn't hear about it</em></span></a> -->
+                    <label id="deterrent_publicity" for="publicity"><span><em>Didn't hear about it</em></span></label>
+                    <input id="publicity" type="checkbox" name="deterrent_value" value="publicity" />
+                    <!-- <a id="deterrent_timing" href="#nogo"><span><em>Too early/late</em></span></a> -->
+                    <label id="deterrent_timing" for="timing"><span><em>Too early/late</em></span></label>
+                    <input id="timing" type="checkbox" name="deterrent_value" value="timing" />
+                    <!-- <a id="deterrent_apathy" href="#nogo"><span><em>Sounded boring</em></span></a> -->
+                    <label id="deterrent_apathy" for="apathy"><span><em>Sounded boring</em></span></label>
+                    <input id="apathy" type="checkbox" name="deterrent_value" value="apathy" />
+                    <input type="hidden" name="feedback_attribute" value="deterrent"/>
+                </div>
+              </fieldset>
+              <fieldset id="comment">
+              <legend>Review</legend>
+              <h2 id="comment-heading"><span id="char-count"></span>Write a review?</h2>
+                <label for="comment-on-it">Write a review?</label>
+                <input type="text" id="comment-on-it" name="comment_value" maxlength="140" />
+                <input type="hidden" name="feedback_attribute" value="comment"/>
+              </fieldset>
+              
+              <fieldset id="reviewer">
+              <legend>Identity</legend>
+                <h2>Identify yourself?</h2>
+                <div id="unknown_user">
+                    <div class="buttons">
+                        <a href="#nogo" id="fb_connect_button"><span><em>your facebook ID</em></span></a>
+                        <a href="#nogo" id="email_button"><span><em>your email</em></span></a>
+                        <a href="#nogo" id="phone_button"><span><em>your phone number</em></span></a>
+                        <a href="#nogo" id="anon_button" title="anon"><span><em>'anonymous'</em></span></a>   
+                        <div id="sign-input" style="color:white">
+                            
+                        </div>
+                    
+                    </div>              
+                </div>
+                
+                <input type="hidden" name="feedback_attribute" value="reviewer"/>
+                <input type="hidden" name="reviewer_email" value=""/>
+                <input type="hidden" name="reviewer_phone" value=""/>
+                <input type="hidden" name="reviewer_id" value=""/>
+                <input type="hidden" name="reviewer_id_source" value=""/>
+                <input type="hidden" name="reviewer_birthday" value=""/>
+              </fieldset> 
+              
+              <button class="submit" type="submit">Send</button>
+              <button class="reset" type="reset">Reset</button>
+            </form>
+            
+        </div>
+        
+        
+        <div id="fb-root"></div>
+        <script type="text/javascript">
+            window.fbAsyncInit = function() {
+                FB.init({appId: pbb.fb.app_id, status:false, cookie:false});
+                // fetch the status on load
+                //FB.getLoginStatus(pbb.fb.handle_session_response, true);
+                //Bind to our ui elements
+                pbb.fb.ui.init();    
+            };
+            (function() {
+                var e = document.createElement('script'); e.async = true;
+                e.src = document.location.protocol +
+                    '//connect.facebook.net/en_US/all.js';
+                document.getElementById('fb-root').appendChild(e);
+             }());
+  
+        </script>
+        
+    </body>
+</html>

@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data Structures</title>
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="developer_resources.html" title="<no title>"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plingback_output_api.html" title="Plingback Output API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="data-structures">
+<h1>Data Structures</h1>
+<div class="section" id="overview">
+<h2>Overview</h2>
+<p>The Plingback API uses the <a class="reference external" href="http://www.talis.com/platform/">Talis</a> Platform to persist feedback data. This section
+describes the data model for the feedback node and its various attributes.</p>
+<p>In order to assist other systems in making use of the feedback data efforts have
+been made to reuse existing ontologies as far as possible. Where existing
+ontologies haven&#8217;t been found to describe the data new ones have been
+invented. These new ontologies are subject to change.</p>
+<p>Currently the custom ontology has the namespace:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/ontologies/plingback#</pre>
+</div>
+</div>
+<div class="section" id="modelling">
+<h2>Modelling</h2>
+<div class="section" id="modelling-the-feedback-node">
+<h3>Modelling the Feedback Node</h3>
+<p>Each time that feedback is submitted to the system a feedback node is created.
+The node is a URI formed in the namespace:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/pb/</pre>
+</div>
+<p>Each node has a unique identifier in the namespace (for more details see
+<a class="reference internal" href="restapi.html#feedback-identifiers-label"><em>Feedback Identifiers</em></a>) yielding URIs of the form:</p>
+<div class="highlight-python"><pre>http://plingback.plings.net/pb/BD402341-1ED3-4EEE-A2C0-DCF87658A01B</pre>
+</div>
+<p>We initialize the node by writing a sequence of triples, each has the URI as its
+subject, our intentions are to:</p>
+<blockquote>
+<ul class="simple">
+<li>Identify the plings activity which this feedback describes</li>
+<li>Record a timestamp for the feedback submission</li>
+<li>Indicate that this URI can be treated as a &#8216;Review&#8217; conforming to a widely used vocabulary</li>
+<li>Record which client application was used to submit the feedback</li>
+<li><em>(optionally)</em> Record the version of the client application</li>
+</ul>
+</blockquote>
+<div class="section" id="identifying-the-pling">
+<h4>Identifying the Pling</h4>
+<p>No existing predicate could be found for declaring that a URI provides
+supplementary information about an activity recorded in the plings database.
+Whilst some general purpose vocabularies provide the means to to this
+<em>in a general sense</em> it was felt that they were liable to misinterpretation.</p>
+<p>Accordingly a predicate <cite>isAbout</cite> has been added to the <a class="reference external" href="http://plingback.plings.net/ontologies">http://plingback.plings.net/ontologies</a>/plingback#
+ontology. The object of an <cite>isAbout</cite> triple should be a URI such as:</p>
+<div class="highlight-python"><pre>http://plings.net/a/456740</pre>
+</div>
+<p>Which uniquely identifies an activity.</p>
+</div>
+<div class="section" id="recording-a-timestamp">
+<h4>Recording a Timestamp</h4>
+<p>We make use of the <cite>date</cite> element from the vocabulary of Dublin Core metadata to
+record a timestamp:</p>
+<div class="highlight-python"><pre>http://purl.org/dc/elements/1.1/date</pre>
+</div>
+<p>The value which is stores is a string serialization of a UTC date time object
+such as that returned by python&#8217;s <cite>datetime.now()</cite></p>
+</div>
+<div class="section" id="marking-the-node-as-a-review">
+<h4>Marking the Node as a Review</h4>
+<p>The <cite>RDF Review Vocabulary</cite> provides a convenient, widely-used and expressive means
+to model reviews and ratings. Plingbacks uses it extensively. It is to be found at:</p>
+<div class="highlight-python"><pre>http://purl.org/stuff/rev#</pre>
+</div>
+<p>In order to mark our feedback node as a <cite>Review</cite> under this vocabulary we use:</p>
+<div class="highlight-python"><pre>http://www.w3.org/TR/rdf-schema/type</pre>
+</div>
+</div>
+<div class="section" id="recording-client-application-details">
+<h4>Recording Client Application Details</h4>
+<p>We use two predicates from the <cite>plingback</cite> ontology to record the name and version
+of the software which the respondant used to give their feedback:</p>
+<blockquote>
+<ul class="simple">
+<li><cite>plingBackType</cite></li>
+<li><cite>plingBackVersion</cite></li>
+</ul>
+</blockquote>
+<p>Currently the objects of these predicates are expected to be string values.</p>
+</div>
+<div class="section" id="a-fully-initialised-feedback-node">
+<h4>A Fully Initialised Feedback Node</h4>
+<p>It&#8217;s convenient at this point to visualise a node which has been created according
+to this scheme: <a class="reference internal" href="#vis-base-feedback"><em>Base Feedback Node (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-attendance"><em>Feedback Node with Attendance (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-deterrent"><em>Feedback Node with Deterrents (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-rating"><em>Feedback Node with Rating (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-comment"><em>Feedback Node with Comment (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-reviewer"><em>Feedback Node with Reviewer (visualisation)</em></a></p>
+<p><a class="reference internal" href="#vis-reviewer-facebook"><em>Feedback Node with Reviewer Facebook Details (visualisation)</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="section" id="graph-visualisations">
+<h3>Graph Visualisations</h3>
+<div class="section" id="base-feedback-node-visualisation">
+<span id="vis-base-feedback"></span><h4>Base Feedback Node (visualisation)</h4>
+<img alt="_images/fastfeedback_node.png" src="_images/fastfeedback_node.png" />
+</div>
+<div class="section" id="feedback-node-with-attendance-visualisation">
+<span id="vis-attendance"></span><h4>Feedback Node with Attendance (visualisation)</h4>
+<img alt="_images/fastfeedback_node_attendance.png" src="_images/fastfeedback_node_attendance.png" />
+</div>
+<div class="section" id="feedback-node-with-deterrents-visualisation">
+<span id="vis-deterrent"></span><h4>Feedback Node with Deterrents (visualisation)</h4>
+<img alt="_images/fastfeedback_node_deterrents.png" src="_images/fastfeedback_node_deterrents.png" />
+</div>
+<div class="section" id="feedback-node-with-rating-visualisation">
+<span id="vis-rating"></span><h4>Feedback Node with Rating (visualisation)</h4>
+<blockquote>
+<img alt="_images/fastfeedback_node_rating.png" src="_images/fastfeedback_node_rating.png" />
+</blockquote>
+</div>
+<div class="section" id="feedback-node-with-comment-visualisation">
+<span id="vis-comment"></span><h4>Feedback Node with Comment (visualisation)</h4>
+<blockquote>
+<img alt="_images/fastfeedback_node_comment.png" src="_images/fastfeedback_node_comment.png" />
+</blockquote>
+</div>
+<div class="section" id="feedback-node-with-reviewer-visualisation">
+<span id="vis-reviewer"></span><h4>Feedback Node with Reviewer (visualisation)</h4>
+<img alt="_images/fastfeedback_node_reviewer_email.png" src="_images/fastfeedback_node_reviewer_email.png" />
+</div>
+<div class="section" id="feedback-node-with-reviewer-facebook-details-visualisation">
+<span id="vis-reviewer-facebook"></span><h4>Feedback Node with Reviewer Facebook Details (visualisation)</h4>
+<img alt="_images/fastfeedback_node_reviewer_facebook.png" src="_images/fastfeedback_node_reviewer_facebook.png" />
+</div>
+</div>
+<div class="section" id="sparql-examples">
+<h3>SPARQL Examples</h3>
+<div class="section" id="namespaces">
+<h4>Namespaces</h4>
+</div>
+<div class="section" id="queries">
+<h4>Queries</h4>
+</div>
+</div>
+<div class="section" id="live-examples">
+<h3>Live Examples</h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

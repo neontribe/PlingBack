@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fastfeedback.controllers.api.plingbacks</title>
+    <link rel="stylesheet" href="../../../../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="../../../../index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../../../index.html">home</a>|&nbsp;</li> 
+        <li><a href="../../../../search.html">search</a>|&nbsp;</li> 
+
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <h1>Source code for fastfeedback.controllers.api.plingbacks</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pylons</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">tmpl_context</span> <span class="k">as</span> <span class="n">c</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">pylons.controllers.util</span> <span class="kn">import</span> <span class="n">abort</span><span class="p">,</span> <span class="n">redirect</span>
+
+<span class="kn">from</span> <span class="nn">fastfeedback.lib.base</span> <span class="kn">import</span> <span class="n">BaseController</span><span class="p">,</span> <span class="n">render</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">talis</span> <span class="kn">import</span> <span class="n">Talis</span>
+<span class="kn">from</span> <span class="nn">rdflib</span> <span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span> <span class="nn">rdflib</span> <span class="kn">import</span> <span class="n">BNode</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">,</span> <span class="n">Namespace</span>
+<span class="kn">import</span> <span class="nn">simplejson</span> <span class="kn">as</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">fastfeedback.controllers</span> <span class="kn">import</span> <span class="n">viewdata</span>
+<span class="kn">from</span> <span class="nn">fastfeedback.config.namespaces</span> <span class="kn">import</span> <span class="p">(</span><span class="n">RDF</span><span class="p">,</span> 
+                                            <span class="n">RDFS</span><span class="p">,</span> 
+                                            <span class="n">PBO</span><span class="p">,</span> 
+                                            <span class="n">PB</span><span class="p">,</span> 
+                                            <span class="n">REV</span><span class="p">,</span> 
+                                            <span class="n">FOAF</span><span class="p">,</span>
+                                            <span class="n">DC</span><span class="p">)</span>
+
+<span class="n">ID_POOL_SIZE</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ID_CANDIDATE_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">MAX_ID_ATTEMPTS</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+
+
+<span class="c"># Helpers</span>
+<span class="k">def</span> <span class="nf">configure_store</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Returns a Talis store object&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Talis</span><span class="p">(</span><span class="s">&quot;plings-dev2&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s">&quot;plings&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s">&quot;ck6sjkfp&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">make_feedback_uri</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">PB</span><span class="p">[</span><span class="n">feedback_id</span><span class="p">]</span>
+
+<span class="c"># Our Custom Exceptions</span>
+<span class="k">class</span> <span class="nc">MissingFeedbackIDError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that an expected FeedbackId was not found&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="c"># Call the base class constructor with the parameters it needs</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        
+<span class="c"># FeedbackAttribute Classes</span>
+<span class="k">class</span> <span class="nc">FeedbackAttribute</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base Class for feedback attributes&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feedback_id</span> <span class="o">=</span> <span class="n">feedback_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span> <span class="o">=</span> <span class="n">make_feedback_uri</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        
+    <span class="k">def</span> <span class="nf">make_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Produce a list of rdflib triples ready to add to a graph&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">removal_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Produce a sparql query to construct a set of triple which will be </span>
+<span class="sd">        removed in order to update this attribute&#39;s data&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
+    
+<span class="k">class</span> <span class="nc">AttendanceAttribute</span><span class="p">(</span><span class="n">FeedbackAttribute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Helper class for attendance attributes &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">make_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;attendance_value&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;attendance&#39;</span><span class="p">],</span> <span class="n">PBO</span><span class="p">[</span><span class="n">value</span><span class="p">])]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        
+    <span class="k">def</span> <span class="nf">removal_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;PREFIX pbo: &lt;</span><span class="si">%s</span><span class="s">&gt; &quot;</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s">&quot;CONSTRUCT { &lt;</span><span class="si">%s</span><span class="s">&gt; pbo:attendance ?o } WHERE { &lt;</span><span class="si">%s</span><span class="s">&gt; pbo:attendance ?o}&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">PBO</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+    
+<span class="k">class</span> <span class="nc">RatingAttribute</span><span class="p">(</span><span class="n">FeedbackAttribute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper class for rating attributes&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">make_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;rating_value&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rating</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> 
+                      <span class="s">&#39;Value &quot;</span><span class="si">%s</span><span class="s">&quot; cannot be converted to a numeric type&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">REV</span><span class="p">[</span><span class="s">&#39;rating&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">rating</span><span class="p">))]</span>
+        
+    <span class="k">def</span> <span class="nf">removal_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;PREFIX rev: &lt;</span><span class="si">%s</span><span class="s">&gt; &quot;</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s">&quot;CONSTRUCT { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:rating ?o } WHERE { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:rating ?o}&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">REV</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+    
+<span class="k">class</span> <span class="nc">CommentAttribute</span><span class="p">(</span><span class="n">FeedbackAttribute</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper class for comment attributes&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">make_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;comment_value&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">REV</span><span class="p">[</span><span class="s">&#39;text&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">value</span><span class="p">))]</span>
+        
+    <span class="k">def</span> <span class="nf">removal_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;PREFIX rev: &lt;</span><span class="si">%s</span><span class="s">&gt; &quot;</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s">&quot;CONSTRUCT { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:text ?o } WHERE { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:text ?o}&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">REV</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+    
+<span class="k">class</span> <span class="nc">ReviewerAttribute</span><span class="p">(</span><span class="n">FeedbackAttribute</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">make_triples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">triples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reviewer</span> <span class="o">=</span> <span class="n">BNode</span><span class="p">()</span>
+        <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">REV</span><span class="p">[</span><span class="s">&#39;reviewer&#39;</span><span class="p">],</span> <span class="n">reviewer</span><span class="p">))</span>
+        <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reviewer</span><span class="p">,</span> <span class="n">RDFS</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">],</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;Person&#39;</span><span class="p">]))</span>
+        <span class="c"># See if we&#39;ve been provided an email address</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">email</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;reviewer_email&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">email</span><span class="p">:</span>
+                <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reviewer</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;mbox&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">email</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="c"># See if we&#39;ve been provided a phone number</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">phone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;reviewer_phone&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phone</span><span class="p">:</span>
+                <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reviewer</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;phone&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&#39;tel:&#39;</span> <span class="o">+</span> <span class="n">phone</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="c"># See if we&#39;ve been provided a birthday</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">birthday</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;reviewer_birthday&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">birthday</span><span class="p">:</span>
+                <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reviewer</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;dateOfBirth&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">birthday</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="c"># See if we&#39;ve been provided a third party id</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tpid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;reviewer_id&#39;</span><span class="p">)</span>
+            <span class="n">tps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">getone</span><span class="p">(</span><span class="s">&#39;reviewer_id_source&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tpid</span> <span class="ow">or</span> <span class="n">tps</span><span class="p">:</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="n">BNode</span><span class="p">()</span>
+                <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reviewer</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;holdsAccount&#39;</span><span class="p">],</span> <span class="n">acc</span><span class="p">))</span>
+                <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">acc</span><span class="p">,</span> <span class="n">RDFS</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">],</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;OnlineAccount&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">tps</span><span class="p">:</span>
+                    <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">acc</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;accountServiceHomepage&#39;</span><span class="p">],</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">tps</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">tpid</span><span class="p">:</span>
+                    <span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">acc</span><span class="p">,</span> <span class="n">FOAF</span><span class="p">[</span><span class="s">&#39;accountName&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">tpid</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">return</span> <span class="n">triples</span>
+
+    <span class="k">def</span> <span class="nf">removal_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">            PREFIX rev: &lt;</span><span class="si">%s</span><span class="s">&gt; </span>
+<span class="s">            PREFIX rdfs: &lt;</span><span class="si">%s</span><span class="s">&gt; </span>
+<span class="s">            PREFIX foaf: &lt;</span><span class="si">%s</span><span class="s">&gt; </span>
+<span class="s">            CONSTRUCT { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:reviewer ?rbn .</span>
+<span class="s">                                     ?rbn rdfs:type foaf:Person .</span>
+<span class="s">                                     ?rbn foaf:mbox ?email .</span>
+<span class="s">                                     ?rbn foaf:dateOfBirth ?dob.</span>
+<span class="s">                                     ?rbn foaf:holdsAccount ?acc.</span>
+<span class="s">                                     ?acc rdfs:type foaf:OnlineAccount.</span>
+<span class="s">                                     ?acc foaf:accountServiceHomepage ?homepage.</span>
+<span class="s">                                     ?acc foaf:accountName ?accid} </span>
+<span class="s">            WHERE { &lt;</span><span class="si">%s</span><span class="s">&gt; rev:reviewer ?rbn .</span>
+<span class="s">                            OPTIONAL { </span>
+<span class="s">                                               ?rbn foaf:mbox ?email .</span>
+<span class="s">                                               ?rbn foaf:dateOfBirth ?dob.</span>
+<span class="s">                                               ?rbn foaf:holdsAccount ?acc.</span>
+<span class="s">                                               ?acc foaf:accountServiceHomepage ?homepage.</span>
+<span class="s">                                               ?acc foaf:accountName ?accid</span>
+<span class="s">                              }</span>
+<span class="s">            }&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">REV</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">RDFS</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">FOAF</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_uri</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span>
+               
+
+<span class="k">def</span> <span class="nf">attribute_factory</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an instance of an appropriate class to act as helper&quot;&quot;&quot;</span>
+    <span class="n">dispatcher</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&#39;comment&#39;</span> <span class="p">:</span> <span class="n">CommentAttribute</span><span class="p">,</span>
+                             <span class="s">&#39;rating&#39;</span> <span class="p">:</span> <span class="n">RatingAttribute</span><span class="p">,</span>
+                             <span class="s">&#39;reviewer&#39;</span><span class="p">:</span><span class="n">ReviewerAttribute</span><span class="p">,</span>
+                             <span class="s">&#39;attendance&#39;</span><span class="p">:</span><span class="n">AttendanceAttribute</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">dispatcher</span><span class="p">[</span><span class="n">name</span><span class="p">](</span><span class="n">feedback_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PlingbacksController"><a class="viewcode-back" href="../../../../plingback_api.html#fastfeedback.controllers.api.plingbacks.PlingbacksController">[docs]</a><span class="k">class</span> <span class="nc">PlingbacksController</span><span class="p">(</span><span class="n">BaseController</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;REST Controller&quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_unique_feedback_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get a unique id for a piece of feedback by using the Primary Key Pattern</span>
+<span class="sd">        </span>
+<span class="sd">        See http://n2.talis.com/wiki/Primary_Key_Pattern for an overview</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">Talis</span><span class="p">(</span><span class="s">&quot;plings-dev2&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s">&quot;plings&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s">&quot;ck6sjkfp&quot;</span><span class="p">)</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">attempts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">feedback_id</span> <span class="o">=</span> <span class="bp">None</span>
+        
+        <span class="k">def</span> <span class="nf">fetch_candidates</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Get a list of potential ids&quot;&quot;&quot;</span>
+            <span class="n">candidates_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">              PREFIX pb: &lt;http://plingback.plings.net/ontologies/plingback#&gt;</span>
+<span class="s">              SELECT ?s  ?o WHERE { ?s pb:idCandidate ?o } LIMIT </span><span class="si">%s</span><span class="s"></span>
+<span class="s">            &quot;&quot;&quot;</span>
+            <span class="n">candidates_query</span> <span class="o">=</span> <span class="n">candidates_query</span> <span class="o">%</span> <span class="p">(</span><span class="n">ID_CANDIDATE_LIMIT</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">store</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">candidates_query</span><span class="p">)]</span>
+            
+        <span class="k">def</span> <span class="nf">take_id</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Push a changeset removing our chosen id and adding a replacement</span>
+<span class="sd">            </span>
+<span class="sd">            If this succeeds we can go ahead and use the id&quot;&quot;&quot;</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">candidate</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;idCandidate&#39;</span><span class="p">],</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">BNode</span><span class="p">(),</span> <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;idCandidate&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">candidate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">toPython</span><span class="p">()</span> <span class="o">+</span> <span class="n">ID_POOL_SIZE</span><span class="p">)))</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">toPython</span><span class="p">()</span>
+            
+        <span class="k">while</span> <span class="n">feedback_id</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attempts</span> <span class="o">&lt;</span> <span class="n">MAX_ID_ATTEMPTS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
+                <span class="n">candidates</span> <span class="o">=</span> <span class="n">fetch_candidates</span><span class="p">()</span>
+                
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">feedback_id</span> <span class="o">=</span> <span class="n">take_id</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            
+            <span class="n">attempts</span> <span class="o">=</span> <span class="n">attempts</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">attempts</span> <span class="o">&gt;=</span> <span class="n">MAX_ID_ATTEMPTS</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s">&quot;max attempts exceeded while trying to grab a unique feedback id&quot;</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">feedback_id</span>
+        
+    <span class="k">def</span> <span class="nf">_init_feedback_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feedback_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot; Add triples for our feedback node to the supplied graph/store object</span>
+<span class="sd">        </span>
+<span class="sd">        If no feedback_id is passed the request will be inspected for one</span>
+<span class="sd">        </span>
+<span class="sd">        The data will be extracted from the request which should contain the </span>
+<span class="sd">        following keys:</span>
+<span class="sd">        </span>
+<span class="sd">        pling_id : the id of the activity under review</span>
+<span class="sd">        plingback_type : the application submitting the feedback</span>
+<span class="sd">        plingback_version : the version of the application (OPTIONAL)</span>
+<span class="sd">        feedback_id : the unique id to identify this feedback node (OPTIONAL)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Validation!</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">feedback_id</span><span class="p">:</span>
+            <span class="n">feedback_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;feedback_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">feedback_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingFeedbackIDError</span><span class="p">(</span><span class="s">&quot;No Feedback Id was specified and&quot;</span> <span class="o">+</span> \
+                    <span class="s">&quot;none was found in the request parameters&quot;</span><span class="p">)</span>
+        <span class="n">feedback_uri</span> <span class="o">=</span> <span class="n">make_feedback_uri</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">)</span>
+        
+                
+        <span class="c"># Validation!</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;pling_id&#39;</span><span class="p">):</span>
+            <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s">&#39;Please supply a pling_id&#39;</span><span class="p">)</span>
+        <span class="n">pling_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;pling_id&#39;</span><span class="p">)</span>
+        <span class="n">pling</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="s">&#39;http://plings.net/a/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pling_id</span><span class="p">))</span>
+
+       
+        <span class="n">plingback_type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plingback_type&#39;</span><span class="p">,</span>
+                                        <span class="s">&#39;http://plingback.plings.net/applications/fastfeedback&#39;</span> <span class="p">)</span>
+        <span class="n">plingback_type_uri</span> <span class="o">=</span> <span class="n">URIRef</span><span class="p">(</span><span class="n">plingback_type</span><span class="p">)</span>
+        
+        <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">RDFS</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">],</span> <span class="n">REV</span><span class="p">[</span><span class="s">&#39;Review&#39;</span><span class="p">]))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;isAbout&#39;</span><span class="p">],</span> <span class="n">pling</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">DC</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">],</span> <span class="n">Literal</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())))</span>
+        
+        <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feedback_uri</span><span class="p">,</span> <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;plingBackType&#39;</span><span class="p">],</span> <span class="n">plingback_type_uri</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plingback_version&#39;</span><span class="p">):</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">feedback_uri</span><span class="p">,</span> 
+                               <span class="n">PBO</span><span class="p">[</span><span class="s">&#39;plingBackVersion&#39;</span><span class="p">],</span> 
+                               <span class="n">Literal</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plingback_version&#39;</span><span class="p">))))</span>
+            
+        <span class="k">return</span> <span class="n">graph</span>
+        
+
+<div class="viewcode-block" id="PlingbacksController.create"><a class="viewcode-back" href="../../../../plingback_api.html#fastfeedback.controllers.api.plingbacks.PlingbacksController.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;POST /api/plingbacks: Create a new feedback node generating an id</span>
+<span class="sd">            PUT /api/plingbacks/id: Create a new feedback node using id provided&quot;&quot;&quot;</span>
+       
+        <span class="c">#Arbitrate between POST and PUT requests</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;post&#39;</span><span class="p">:</span>
+            <span class="n">feedback_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_unique_feedback_id</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">feedback_id</span><span class="p">:</span>
+                <span class="n">abort</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="s">&#39;Failed to generate a unique feedback_id&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;put&#39;</span><span class="p">:</span>        
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">feedback_id</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;feedback_id&#39;</span><span class="p">):</span>
+                    <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s">&#39;the feedback_id should form part of the uri&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s">&#39;Missing feedback_id&#39;</span><span class="p">)</span>
+        
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">configure_store</span><span class="p">()</span>
+
+        <span class="c">#Build the feedback node into the local graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_feedback_node</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">)</span>
+        
+        <span class="c"># Add any feedbackdata that we can find in the request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_feedback_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">)</span>
+        
+        <span class="c"># Commit the changes to the store</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        
+        <span class="c"># We&#39;ve done a create so add an appropriate Location header</span>
+        <span class="c"># and set the response code appropriately</span>
+        <span class="n">feedback_uri</span> <span class="o">=</span> <span class="n">make_feedback_uri</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">feedback_uri</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">201</span>
+        
+        <span class="c"># Build a return json</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;feedback_id&#39;</span><span class="p">:</span> <span class="n">feedback_id</span><span class="p">,</span>
+                         <span class="s">&#39;feedback_uri&#39;</span><span class="p">:</span> <span class="n">feedback_uri</span><span class="p">}</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="s">&#39;application/json&#39;</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>        
+            </div>
+    <span class="k">def</span> <span class="nf">_add_feedback_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>   
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">attribute_name</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">getall</span><span class="p">(</span><span class="s">&#39;feedback_attribute&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">attributes</span><span class="p">:</span>
+                <span class="c"># An oddity in WebOb means that if multiple values were submitted for</span>
+                <span class="c"># a key via a javascript list we end up with odd key naming</span>
+                <span class="n">attributes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">getall</span><span class="p">(</span><span class="s">&#39;feedback_attribute[]&#39;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">helper</span> <span class="o">=</span> <span class="n">attribute_factory</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">triple</span> <span class="ow">in</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_triples</span><span class="p">():</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">triple</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s">&#39;Unknown feedback attribute supplied&#39;</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">graph</span>
+    
+    <span class="k">def</span> <span class="nf">_remove_old_feedback_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_graph</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Queries the store for the triple representing the attribute and then </span>
+<span class="sd">        issues removal requests against the graph&quot;&quot;&quot;</span>
+        <span class="n">local_graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+        <span class="n">sparqurl</span> <span class="o">=</span> <span class="n">store_graph</span><span class="o">.</span><span class="n">urlbase</span> <span class="o">+</span> <span class="s">&#39;/services/sparql?query=&#39;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">helper</span> <span class="o">=</span> <span class="n">attribute_factory</span><span class="p">(</span><span class="n">attribute_name</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">removal_query</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+                <span class="n">local_graph</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">sparqurl</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="s">&#39;&lt;&gt;{}&#39;</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">triple</span> <span class="ow">in</span> <span class="n">local_graph</span><span class="p">:</span>
+                    <span class="n">store_graph</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">triple</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">abort</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="s">&#39;Unknown feedback attribute supplied&#39;</span><span class="p">)</span>
+                   
+        <span class="k">return</span> <span class="n">store_graph</span>
+            
+            
+            
+<div class="viewcode-block" id="PlingbacksController.add_attribute"><a class="viewcode-back" href="../../../../plingback_api.html#fastfeedback.controllers.api.plingbacks.PlingbacksController.add_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">add_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Record a feedback attribute for the given feedback node.</span>
+<span class="sd">        </span>
+<span class="sd">        @id : the unique id of the feedback node which the comment will be applied to</span>
+<span class="sd">        @attribute: the name of the feedback attribute</span>
+<span class="sd">        @update : overwrite the existing attribute for this node with the new one</span>
+<span class="sd">                        (an HTTP PUT will trigger this)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">configure_store</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_feedback_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_old_feedback_attribute</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+        
+        <span class="n">graph</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        
+        <span class="c"># Build a return json</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;feedback_id&#39;</span><span class="p">:</span><span class="n">feedback_id</span><span class="p">,</span>
+                         <span class="s">&#39;feedback_uri&#39;</span><span class="p">:</span><span class="n">make_feedback_uri</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">)}</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="s">&#39;application/json&#39;</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="PlingbacksController.show"><a class="viewcode-back" href="../../../../plingback_api.html#fastfeedback.controllers.api.plingbacks.PlingbacksController.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_id</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;svg&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Show the contents of the feedback node &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&#39;svg&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">viewdata</span><span class="o">.</span><span class="n">feedback_image</span><span class="p">(</span><span class="n">feedback_id</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

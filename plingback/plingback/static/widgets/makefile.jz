@@ -1,0 +1,64 @@
+// JZBUILD makefile for Plingback Widgets
+// get jzbuild.py from https://github.com/smhanov/jzbuild
+
+{
+  pbwidget: {
+    output: ./pbwidget.js
+    input: [pbwidget.source.js]
+    compiler: closure
+  }
+  fastfeedback: {
+    output: ./fastfeedback/fastfeedback-bundle.js
+    input: [jquery.scrollTo.js,
+            jquery.serialScroll.js,
+            jquery.easing.1.3.js,
+            jquery.ui.stars.js,
+            date.js,
+            plingback.js,
+            preloader.js,
+            fastfeedback.js]
+   include: [./libs, ./fastfeedback]
+   compiler: closure
+  }
+  fastfeedback_debug: {
+    base: fastfeedback
+    compiler: cat
+  }
+  plingbackbar: {
+    output: ./plingbackbar/plingbackbar-bundle.js
+    input: [jquery.ui.stars.js, 
+            preloader.js,
+            textcounter.plugin.js,
+            date.js,
+            plingback.js,
+            plingbackbar.js]
+    include: [./libs, ./plingbackbar]
+    compiler: closure
+  }
+  plingbackbar_debug: {
+    base: plingbackbar
+    compiler: cat
+  }
+  stars: {
+    output: ./stars/stars-bundle.js
+    input: [jquery.ui.stars.js,
+            plingback.js,
+            stars.js]
+    include: [./libs, ./stars]
+    compiler: closure
+  }
+  stars_debug: {
+    base: stars
+    compiler: cat
+  }
+  plingback_modal: {
+    output: ./wrappers/modal/plingback_modal.min.js
+    input: [plingback_modal.js]
+    include: [./libs, ./wrappers/modal]
+    compiler: closure
+  }
+  plingback_modal_debug: {
+    base: plingback_modal
+    compiler: cat
+  }
+}

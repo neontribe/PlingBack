@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Plingback Input API</title>
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="plingback_output_api.html" title="Plingback Output API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="groupback.html" title="Groupback - collecting feedback on the spot"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="the-plingback-input-api">
+<h1>The Plingback Input API</h1>
+<div class="section" id="overview">
+<h2>Overview</h2>
+<blockquote>
+<p>The Plingback Input API exposes a RESTful interface which allows the
+submission of feedback about a Pling through the use of standard HTTP
+actions such as POST and PUT. The submitted data is parsed, structured
+as triples using the ontologies set out here, and stored in a triplestore
+(currently on the talis platform).</p>
+<p>A minimal example of an HTML form which could be used to submit a comment
+about pling 67885 follows</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;http://plingback.appspot.com/api/plingbacks&quot;</span>
+      <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;pling_id&quot;</span> <span class="na">value=</span><span class="s">&quot;67885&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;plingback_type&quot;</span> <span class="na">value=</span><span class="s">&quot;Example Form&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;feedback_attribute&quot;</span> <span class="na">value=</span><span class="s">&quot;comment&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">name=</span><span class="s">&quot;comment_value&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Save&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</blockquote>
+</div>
+<div class="section" id="feedback-identifiers">
+<span id="feedback-identifiers-label"></span><h2>Feedback Identifiers</h2>
+<blockquote>
+<p>Each piece of submitted feedback requires a unique identifier.</p>
+<p>The work of
+generating this identifier can be done by the submitting client, in which
+case it is expected that the identifier will conform to the UUID standards.
+The javascript function which is used in the example clients is as follows</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm">* genUUID is taken from</span>
+<span class="cm">* Math.uuid.js (v1.4)</span>
+<span class="cm">* http://www.broofa.com</span>
+<span class="cm">* mailto:robert@broofa.com</span>
+<span class="cm">*/</span>
+<span class="nx">pb</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">genUUID</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">&#39;xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx&#39;</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[xy]/g</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="mi">16</span><span class="o">|</span><span class="mi">0</span><span class="p">,</span> <span class="nx">v</span> <span class="o">=</span> <span class="nx">c</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span> <span class="o">?</span> <span class="nx">r</span> <span class="o">:</span> <span class="p">(</span><span class="nx">r</span><span class="o">&amp;</span><span class="mh">0x3</span><span class="o">|</span><span class="mh">0x8</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">v</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mi">16</span><span class="p">);</span>
+    <span class="p">}).</span><span class="nx">toUpperCase</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Where a unique identifier is not provided the api will generate one which it
+will return in the response. The api uses the Primary Key Pattern
+(<a class="reference external" href="http://n2.talis.com/wiki/Primary_Key_Pattern">http://n2.talis.com/wiki/Primary_Key_Pattern</a>) to generate this id.</p>
+</blockquote>
+</div>
+<div class="section" id="submitting-feedback">
+<h2>Submitting Feedback</h2>
+<blockquote>
+<p>Feedback data is submitted to the API via http POST or http PUT. Feedback
+can be submitted in a single glob, or a feedback node can be initialized and
+then augmented with additional feedback data in subsequent requests.</p>
+<p>If the submitting client wishes to control the identifier used for the
+feedback node it should make an http PUT request to the url:</p>
+<div class="highlight-python"><pre>http://plingback.appspot.com/api/plingbacks/NODE_UUID</pre>
+</div>
+<p>If, on the other hand the client wishes the api to take responsibility for
+the generation of a feedback id it should make an http POST request to the
+url:</p>
+<div class="highlight-python"><pre>http://plingback.appspot.com/api/plingbacks</pre>
+</div>
+</blockquote>
+<div class="section" id="required-request-parameters">
+<h3>Required Request Parameters</h3>
+<blockquote>
+<p>The request <strong>should always</strong> contain the following parameters:</p>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">pling_id</span></tt> - the plings identifier for the activity the feedback</dt>
+<dd><p class="first last">refers to.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">plingback_type</span></tt> - A string identifying the plingback client which</dt>
+<dd><p class="first last">is submitting the data. e.g. &#8216;fastfeedback&#8217;</p>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="optional-request-parameters">
+<h3>Optional Request Parameters</h3>
+<blockquote>
+<p>The request <strong>may</strong> contain the following parameters:</p>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">plingback_version</span></tt> - A string identifying the version of the plingback</dt>
+<dd><p class="first last">client identified in <tt class="docutils literal"><span class="pre">plingback_type</span></tt>. e.g. &#8216;0.5 beta&#8217;</p>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="feedback-attribute-parameters">
+<h3>Feedback Attribute Parameters</h3>
+<blockquote>
+<p>Once the data required to initialize a feedback node has been extracted from
+the request the request will be parsed to discover any feedback data which
+is to be attached to the node. The presence of feedback data is signalled
+by <tt class="docutils literal"><span class="pre">feedback_attribute</span></tt> request parameters. A request may contain any
+number of <tt class="docutils literal"><span class="pre">feedback_attribute</span></tt> parameters.</p>
+<p>Currently supported feedback attribute values are:</p>
+<blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">attendance</span></tt> - used to record whether the respondant attended or</dt>
+<dd><p class="first last">intends to attend the activity</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">deterrent</span></tt> - used to record the respondant&#8217;s reasons for not attending</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">rating</span></tt> - used to record the respondant&#8217;s rating for the activity</p>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">comment</span></tt> - used to record a textual comment from the respondant</dt>
+<dd><p class="first last">about the activity</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">approval</span></tt> - used to record a mark of approval such as a &#8216;vote&#8217;, &#8216;thumbs up&#8217;, or &#8216;like&#8217;</p>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">reviewer</span></tt> - used to record details about the</dt>
+<dd><p class="first last">identity/characteristics of the respondant</p>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+<p>When a <tt class="docutils literal"><span class="pre">feedback_attribute</span></tt> is detected the request is examined to find
+the data required to populate the attribute indicated by the value of the
+feedback_attribute.</p>
+<p>The data-bearing parameters for each feedback attribute type are set out
+below.</p>
+</blockquote>
+<div class="section" id="attendance">
+<h4>Attendance</h4>
+<blockquote>
+<p>The <strong>attendance</strong> attribute records information about the respondant&#8217;s
+attendance (or intentions regarding attendance) at the activity.</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">attendance_value</span></tt> - Any value may be supplied, but the standard
+values are:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">attended</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">didNotAttend</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">willAttend</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">willNotAttend</span></tt></li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</div>
+<div class="section" id="deterrent">
+<h4>Deterrent</h4>
+<blockquote>
+<p>The <strong>deterrent</strong> attribute records the respondant&#8217;s reasons for not attending
+the activity.</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">deterrent_value</span></tt> = Any value may be supplied, but the values in current
+use are:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">transport</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">cost</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">publicity</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">timing</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">apathy</span></tt></li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</div>
+<div class="section" id="rating">
+<h4>Rating</h4>
+<blockquote>
+<p>The <strong>rating</strong> attribute records information about the respondant&#8217;s rating
+for the activity.</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">rating_value</span></tt> - Any value may be supplied, but it is recommended that
+all ratings be expressed as values between 0 and 100. A conventional
+five-star rating input, therefore, might submit the values 0, 20, 40, 60,
+80 and 100 for zero, one, two, three, four and five stars respectively.</blockquote>
+</blockquote>
+</div>
+<div class="section" id="comment">
+<h4>Comment</h4>
+<blockquote>
+<p>The <strong>comment</strong> attribute records a textual comment about the activity.</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">comment_value</span></tt> - Any text value is accepted and the api does not
+currently impose any restrictions on the length or content of comments.</blockquote>
+</blockquote>
+</div>
+<div class="section" id="approval">
+<h4>Approval</h4>
+<blockquote>
+<p>The <strong>approval</strong> attribute records a mark of approval for the activity. An
+approval  attribute might represent a &#8216;Favorite&#8217;, a &#8216;Like&#8217; or a &#8216;Vote&#8217; etc.</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">approval_value</span></tt> - Any numeric value is supported though in most cases
+1 is appropriate. Higher numbers are supported for the convenience of
+client applications which aggregate data from other sources.</blockquote>
+</blockquote>
+</div>
+<div class="section" id="reviewer">
+<h4>Reviewer</h4>
+<blockquote>
+<p>The <strong>reviewer</strong> attribute records information about the identity of the
+respondant. If a <tt class="docutils literal"><span class="pre">feedback_atribute</span></tt> with a value of <tt class="docutils literal"><span class="pre">reviewer</span></tt> is
+present in the request data will be stored for any of the following keys. It
+is expected that any combination of keys may be present. Though it should be
+noted that <tt class="docutils literal"><span class="pre">reviewer_id</span></tt> and <tt class="docutils literal"><span class="pre">reviewer_id_source</span></tt> are mutually dependent.</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">reviewer_email</span></tt> - any valid email address is acceptable. e.g. <a class="reference external" href="mailto:'pling_lover&#37;&#52;&#48;example&#46;com">'pling_lover<span>&#64;</span>example<span>&#46;</span>com</a>&#8216;</li>
+<li><tt class="docutils literal"><span class="pre">reviewer_phone</span></tt> - anything which looks like a telephone number is acceptable. e.g. &#8216;+44 7990 665432&#8217;</li>
+<li><tt class="docutils literal"><span class="pre">reviewer_birthday</span></tt> - A string representation of a date. e.g. &#8216;10/06/1971&#8217;</li>
+<li><tt class="docutils literal"><span class="pre">rewiever_id</span></tt> - An unique identifier for the respondant which allows them to be looked up on the online service supplied as <tt class="docutils literal"><span class="pre">reviewer_id_source</span></tt>. e.g. &#8216;10000776554&#8217;(see data structures for more detail)</li>
+<li><tt class="docutils literal"><span class="pre">reviewer_id_source</span></tt> - An identifier (usually a URL) for the online service which provides lookup for the id specified in <tt class="docutils literal"><span class="pre">reviewer_id</span></tt>. e.g. &#8216;<a class="reference external" href="http://www.facebook.com">http://www.facebook.com</a>&#8216; (see data structure for more detail)</li>
+</ul>
+</blockquote>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="evaluating-responses">
+<h2>Evaluating Responses</h2>
+<blockquote>
+<p>The Plingback API makes use of standard http response codes to indicate the
+status of a request. It also supplies additional context in the body of
+its response.</p>
+<p>HTTP 200 will be returned for requests which manipulate an existing feedback
+node.</p>
+<p>Requests which resulted in the creation of a new node will return HTTP 201
+with an additional &#8216;Location&#8217; header which will give the full URI of the
+new node.</p>
+<p>In addition, successful responses will supply some contextual data in the
+body of the response. This data will be encoded in JSON format and the
+content-type of the response will be set to &#8216;application/json&#8217;</p>
+<p>Currently two keys are present in the JSON-encoded response:</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">feedback_id</span></tt> - The unique identifier for the feedback node which
+has been created/manipulated. This is especially useful if a node has
+been created as a result of an HTTP POST and it is intended to augment
+the node with additional data in subsequent requests.</p>
+<p><tt class="docutils literal"><span class="pre">feedback_uri</span></tt> - The full URI of the feedback node. Useful to clients
+which wish to store a full linked-data useable URI for the feedback data
+which was submitted.</p>
+</blockquote>
+<p>If an error condition is detected the API will return an HTTP status code
+such as 400, 404 or 500. In such cases the body of the response will be a
+text string containing a descriptive error message. Should you encounter
+error messages which aren&#8217;t sufficiently helpful to allow you to diagnose
+the problem please get in touch :-)</p>
+</blockquote>
+</div>
+<div class="section" id="jsapi-working-around-cross-domain-issues">
+<h2>JSAPI - Working Around Cross Domain issues</h2>
+<blockquote>
+<p>Due to cross-domain http request restrictions it can be annoying to have to
+provide a proxy to forward requests from javascript clients.</p>
+<p>To avoid this irritation an emulation layer is provided so that javascript only clients
+can cheat.</p>
+<p>Any url path and method combination used in the rest api can be emulated through
+a specially formed GET request</p>
+<p>So to emulate a POST containing <cite>pling_id=2345</cite> to <cite>/api/plingbacks</cite> via a GET request you can do:</p>
+<div class="highlight-html"><div class="highlight"><pre>/jsapi/post/plingbacks?pling_id=2345
+</pre></div>
+</div>
+<p>To emulate a PUT to <cite>/api/plingbacks/55566/approval</cite> with <cite>approval_value=1</cite> do:</p>
+<div class="highlight-html"><div class="highlight"><pre>/jsapi/put/plingbacks/55566/approval?approval_value=1
+</pre></div>
+</div>
+<p>This interface supports JSONP if a callback parameter is provided.</p>
+</blockquote>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<p><strong>An HTML form for submitting an email-signed comment</strong></p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;http://plingback.appspot.com/api/plingbacks&quot;</span>
+      <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;pling_id&quot;</span> <span class="na">value=</span><span class="s">&quot;67885&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;plingback_type&quot;</span> <span class="na">value=</span><span class="s">&quot;Example Form&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;feedback_attribute&quot;</span> <span class="na">value=</span><span class="s">&quot;comment&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;feedback_attribute&quot;</span> <span class="na">value=</span><span class="s">&quot;reviewer&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;comment&quot;</span><span class="nt">&gt;</span>Your Comment<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">id=</span><span class="s">&quot;comment&quot;</span> <span class="na">name=</span><span class="s">&quot;comment_value&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;email&quot;</span><span class="nt">&gt;</span>Your Email<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">id=</span><span class="s">&quot;email&quot;</span> <span class="na">name=</span><span class="s">&quot;reviewer_email&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Save&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p><strong>A (somewhat contrived) example using jQuery to initialize a feedback node with
+a rating and then add data to it in a subsequent request</strong></p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+    <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;http://plingback.appspot.com/api/plingbacks&#39;</span><span class="p">,</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">pling_id</span><span class="o">:</span> <span class="s1">&#39;67885&#39;</span><span class="p">,</span>
+            <span class="nx">plingback_type</span><span class="o">:</span> <span class="s1">&#39;jQuery Example&#39;</span><span class="p">,</span>
+            <span class="nx">plingback_version</span><span class="o">:</span> <span class="s1">&#39;0.1&#39;</span><span class="p">,</span>
+            <span class="nx">feedback_attribute</span><span class="o">:</span> <span class="s1">&#39;rating&#39;</span><span class="p">,</span>
+            <span class="nx">rating_value</span><span class="o">:</span> <span class="s1">&#39;60&#39;</span><span class="p">},</span>
+            <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span> <span class="kd">var</span> <span class="nx">feedback_id</span> <span class="o">=</span> <span class="nx">d</span><span class="p">.</span><span class="nx">feedback_id</span><span class="p">;</span>
+                                  <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+                                    <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;http://plingback.appspot.com/api/plingbacks&#39;</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nx">feedback_id</span><span class="p">,</span>
+                                    <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;PUT&#39;</span><span class="p">,</span>
+                                    <span class="nx">dataType</span><span class="o">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+                                    <span class="nx">data</span><span class="o">:</span> <span class="p">{</span><span class="nx">pling_id</span><span class="o">:</span> <span class="s1">&#39;67885&#39;</span><span class="p">,</span>
+                                           <span class="nx">plingback_type</span><span class="o">:</span> <span class="s1">&#39;jQuery Example&#39;</span><span class="p">,</span>
+                                           <span class="nx">plingback_version</span><span class="o">:</span> <span class="s1">&#39;0.1&#39;</span><span class="p">,</span>
+                                           <span class="nx">feedback_attribute</span><span class="o">:</span> <span class="s1">&#39;reviewer&#39;</span><span class="p">,</span>
+                                           <span class="nx">reviewer_email</span><span class="o">:</span> <span class="s1">&#39;pling_lover@example.com&#39;</span><span class="p">},</span>
+                                    <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">d</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span> <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Done!&#39;</span><span class="p">);</span> <span class="p">},</span>
+                                    <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Oops: &#39;</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">msg</span><span class="p">);</span> <span class="p">}</span>
+                                    <span class="p">});</span>
+                                  <span class="p">},</span>
+    <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">t</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Oops: &#39;</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">msg</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

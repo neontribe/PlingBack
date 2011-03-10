@@ -1,0 +1,424 @@
+/* UTILITY CLASSES ---------------------------------- */
+
+.valid {
+background-position:0 -20px !important;
+}
+
+.invalid {
+background-position:0 -40px !important;
+}
+
+.sign-choice {
+background-position:0 -44px !important;
+}
+
+.comment-entered {
+background-position:0 -20px;
+}
+
+.yes { /* attendance */
+background-position:0 -25px !important;
+
+}
+
+.lonely-icon {
+background-position:0 -44px !important;
+}
+
+.lonely-icon:hover {
+background-position:0 -66px !important;
+}
+
+/* -------------------------------------------------- */
+
+html, body {
+margin:0;
+padding:0;
+font-family:'trebuchet ms', trebuchet, sans-serif;
+font-size:12px;
+}
+
+span, label, legend {
+color:#eee;
+}
+
+#wrapper input {
+background-attachment:fixed;
+padding-top:0 !important;
+padding-bottom:0 !important;
+height:20px;
+line-height:20px;
+}
+
+a, button {outline:none; color:#fff;}
+
+button::-moz-focus-inner { border: 0; }
+
+#wrapper {
+background:#222 url(/widgets/plingbackbar/images/bar_repeat.png) repeat-x top left;
+height:65px;
+overflow:hidden;
+position:relative;
+}
+
+#widget-loading, #widget-sending {
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:59px;
+background:#111;
+z-index:9999;
+text-align:center;
+padding:6px 0 0 0;
+color:#fff;
+}
+
+#widget-sending {
+display:none;
+}
+
+a#plings-logo {
+display:block;
+width:50px;
+height:50px;
+position:absolute;
+top:5px;
+right:5px;
+background:transparent url(/widgets/plingbackbar/images/plings_logo.png) no-repeat top left;
+}
+
+a#plings-logo:hover {
+background-position:0 -50px;
+}
+
+a#plings-logo span {
+display:none;
+}
+
+img#thank-you {
+margin:10px 0 0 10px;
+}
+
+a {outline:none;}
+
+h1,h2,h3,h4,h5 {
+margin:0;
+padding:0;
+}
+
+h1 {
+padding:0 10px;
+width:100px;
+background:url(/widgets/plingbackbar/images/groove.png) no-repeat top right;
+float:left;
+}
+
+h1 span {
+display:none;
+}
+
+h1 img {
+}
+
+span.plingname {
+display:none;
+}
+
+legend, label {
+display:none;
+}
+
+#deterrent label {
+display:block;
+cursor:pointer;
+}
+
+fieldset {
+border:0;
+padding:2px 3px 0 3px;
+float:left;
+background:url(/widgets/plingbackbar/images/groove.png) no-repeat top right;
+height:54px;
+}
+
+fieldset#attendance {width:70px}
+fieldset#rating {width:170px}
+fieldset#deterrent {width:144px}
+fieldset#comment {width:165px}
+fieldset#reviewer {width:150px; background:none;}
+
+h2 {
+color:#eee;
+font-weight:normal;
+font-size:11px;
+}
+
+input#attendance1, input#attendance2, fieldset#attendance span {
+display:none;
+}
+
+a#yes-no {
+display:block;
+width:58px;
+height:25px;
+margin:7px auto 0 auto;
+background-image:url(/widgets/plingbackbar/images/yes_no.png);
+background-repeat:no-repeat;
+background-position:0 0;
+}
+
+input#attendance_check {
+display:none;
+}
+
+div#stars-wrap, input#comment-on-it {
+margin:8px 0 0 0;
+}
+
+.ui-stars-star a,
+.ui-stars-cancel a {
+width: 22px;
+height: 22px;
+margin:0 6px 0 0;
+display: block;
+background: url(/widgets/plingbackbar/images/feedback_stars.png) no-repeat 0 0;
+}
+
+.ui-stars-star a {
+background-position: 0 -44px;
+}
+
+.ui-stars-star-on a {
+background-position: 0 -66px;
+}
+
+.ui-stars-star-hover a {
+background-position: 0 -88px;
+}
+
+.ui-stars-cancel-hover a {
+background-position: 0 -22px;
+}
+
+.ui-stars-cancel-disabled a {
+background-position:0 -111px !important;
+}
+
+input {
+font-family:'trebuchet ms', trebuchet, sans-serif;
+}
+
+span#stars-cap {
+float:right;
+color:#999;
+width:60px;
+clear:none;
+text-align:right;
+padding-right:5px;
+}
+
+span#char-count {
+width:50px;
+text-align:right;
+padding-right:5px;
+}
+
+fieldset#comment h2 span {
+float:right;
+color:#666;
+}
+
+input#comment-on-it {
+background:url(/widgets/plingbackbar/images/comment_back.png) no-repeat top left;
+border:0;
+padding:1px 9px;
+width:145px;
+font-size:12px;
+}
+
+#char-count {
+visibility:hidden;
+}
+
+button {
+cursor:pointer;
+}
+
+fieldset#reviewer a, fieldset#deterrent label {
+float:left;
+height:22px;
+margin:7px 7px 0 0;
+padding:0;
+border:0;
+background-color:transparent;
+position:relative;
+text-decoration:none;
+}
+
+fieldset#deterrent input {
+display:none;
+}
+
+fieldset#reviewer a:hover, fieldset#deterrent label:hover {
+background-position:0 -22px;
+}
+
+fieldset#reviewer span {
+font-size:10px;
+}
+
+fieldset#deterrent label.chosen {
+background-position:0 -44px;
+}
+
+fieldset#deterrent label.chosen.hover  {
+background-position:0 -66px;
+}
+
+fieldset#reviewer a span, fieldset#deterrent label span {
+display:none;
+background:transparent url(/widgets/plingbackbar/images/sign_tip.png) no-repeat left top;
+}
+
+fieldset#deterrent label span {
+background:transparent url(/widgets/plingbackbar/images/deterrent_tip.png) no-repeat left top;
+}
+
+fieldset#reviewer a:hover span, fieldset#deterrent label:hover span {
+display:block;
+position:absolute;
+z-index:999999999;
+bottom:0px;
+left:-130px;
+width:135px;
+height:44px;
+color:#fff;
+font-size:11px;
+padding:0;
+text-decoration:none;
+text-align:center;
+}
+
+fieldset#reviewer a:hover span em, fieldset#deterrent label:hover span em {
+padding-top:21px;
+font-style:normal;
+display:block;
+}
+
+fieldset#deterrent label:hover span em {
+padding-top:14px;
+}
+
+label#deterrent_cost {
+width:11px;
+background-image:url(/widgets/plingbackbar/images/noattend_money.png);
+}
+
+label#deterrent_transport {
+width:22px;
+background-image:url(/widgets/plingbackbar/images/noattend_travel.png);
+}
+
+label#deterrent_publicity {
+width:20px;
+background-image:url(/widgets/plingbackbar/images/noattend_confusion.png);
+}
+
+label#deterrent_timing {
+width:22px;
+background-image:url(/widgets/plingbackbar/images/noattend_time.png);
+}
+
+label#deterrent_apathy {
+width:22px;
+background-image:url(/widgets/plingbackbar/images/noattend_boredom.png);
+}
+
+a span em, label span em {
+display:block;
+padding-right:12px !important;
+}
+
+a#fb_connect_button {
+display:block;
+background-image:url(/widgets/plingbackbar/images/sign_facebook.png);
+width:22px;
+}
+
+a#email_button {
+background-image:url(/widgets/plingbackbar/images/sign_email.png);
+width:31px;
+}
+
+a#phone_button {
+background-image:url(/widgets/plingbackbar/images/sign_phone.png);
+width:18px;
+}
+
+a#anon_button {
+display:block;
+background-image:url(/widgets/plingbackbar/images/sign_anon.png);
+width:17px;
+}
+
+button.submit, button.reset {
+border:0;
+width:65px;
+height:20px;
+text-transform:uppercase;
+background:#8bc53e;
+color:#222;
+font-weight:bold;
+font-family:'trebuchet ms', trebuchet, sans-serif;
+-moz-border-radius:4px;
+-webkit-border-radius:4px;
+-khtml-border-radius:4px;
+border-radius:4px;
+position:absolute;
+top:5px;
+right:5px;
+}
+
+button.reset {
+top:30px;
+background:#a64444;
+color:#fff;
+}
+
+button.submit:hover, button.reset:hover {
+background:#000;
+border:1px solid #eee;
+color:#fff;
+}
+
+#sign-input {
+float:left;
+max-width:105px;
+white-space:nowrap;
+font-size:10px;
+padding:3px 0 0;
+}
+
+#sign-input strong {
+color:#999;
+}
+
+#sign-input span strong {
+display:inline;
+}
+
+#reviewer input {
+width:90px;
+border:0;
+background:transparent url(/widgets/plingbackbar/images/sign_back.png);
+margin:8px 0 0 0;
+padding:2px 2px 0px 10px;
+font-size:12px !important;
+}
+
+#reviewer strong {
+display:block;
+font-style:italic;
+padding:8px 0 0 0;
+}

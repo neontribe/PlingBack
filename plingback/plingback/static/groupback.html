@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Plings Group Feedback</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--  Mobile Viewport Fix
+        j.mp/mobileviewport & davidbcalhoun.com/2010/viewport-metatag 
+  device-width : Occupy full width of the screen in its current orientation
+  initial-scale = 1.0 retains dimensions instead of zooming out if page height > device height
+  maximum-scale = 1.0 retains dimensions instead of zooming in if page width < device width
+  -->
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+
+
+  <!-- Place favicon.ico and apple-touch-icon.png  
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"> -->
+
+
+  <!-- CSS : implied media="all" -->
+  <link rel="stylesheet" href="css/groupback.css?v=1">
+
+  <!-- For the less-enabled mobile browsers like Opera Mini -->
+  <link rel="stylesheet" media="handheld" href="css/handheld.css?v=1">
+
+ 
+  <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
+  <script src="js/modernizr-1.5.min.js"></script>
+
+</head>
+
+<body> 
+  <div id="container">
+    <header>
+        <h1>Group Feedback</h1>
+    </header>
+    
+    <div id="main">
+        <span id="loading">Getting Location</span>
+    </div>
+    
+    <footer>
+        <a href="#nogo" id="manual_entry">enter an activity id</a> 
+		<a href="#nogo" id="start_over">start over</a>
+    </footer>
+  </div> <!--! end of #container -->
+
+
+  <!-- Javascript at the bottom for fast page loading -->
+
+  <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  
+
+  <script>
+    var pbwidget_immediate_load = true;
+	var search_sent = 0;
+	var pling_id = null;
+  	function get_location() {
+		if (Modernizr.geolocation) {
+			navigator.geolocation.getCurrentPosition(do_plings_search, request_postcode);
+		} else {
+			request_postcode();
+		}
+	}
+	
+	function request_postcode() {
+		$('#loading').text("Failed to get your location.");
+		var postcode_f = $('<form id="pc_form"></form>')
+		                     .append('<label for="postcode">Enter Your Current Postcode</label>')
+                             .append('<input type="text" placeholder="postcode" name="postcode" id="postcode"></input>')
+                             .append('<input type="submit" value="Search"/>')
+                             .bind('submit', function(){ 
+                                 do_plings_search(null, $('#postcode').val());
+								 $('#pc_form').remove();
+								 return false;
+                              });
+         
+         $('#main').append(postcode_f);
+	}
+	
+	function request_pling_id() {
+		$('#loading').remove();
+        var pc_form = $('<form id="pling_chooser_form"></form>')
+                     .append('<label for="pling_chooser">Enter a Plings Activity ID:</label>')
+					 .append('<input type="text" id="pling_chooser"/>')
+					 .append('<input type="submit" value="Go"/>')
+					 .bind('submit', function(){
+					 	pling_chosen($('#pling_chooser').val());
+						return false;
+					 });      
+        $('#main').append(pc_form);
+	}
+	
+	function do_plings_search(pos, postcode) {
+		// Beware of multiple invocations
+		if (!search_sent) {
+			search_sent = 1;
+			$('#loading').text("...searching for Plings near you...");
+	        var url = "http://feeds.plings.net/json.activity.php/0/";
+	        if (postcode) {
+	            url += 'postcode/' + postcode;
+	            url += '?sortby=distance&callback=?';
+	        }
+	        if (pos !== null) {
+	            url += 'latlong/' + pos.coords.latitude + ',' + pos.coords.longitude;
+	            url += '?radius=5&sortby=distance&callback=?';
+	        }
+	        $.getJSON(url, show_plings_list);
+		}
+		
+		
+	}
+	
+	function show_plings_list(data) {
+		$('#loading').remove();
+		var pc_form = $('<form id="pling_chooser_form"></form>')
+		             .append('<label for="pling_chooser">Choose an Activity for which to give Feedback</label>');
+		var sel = $('<select id="pling_chooser" style="width:280px" ><option>Activities...</option></select>');
+		pc_form.append(sel);
+		$('#main').append(pc_form);
+		jQuery.each(data.activities, function(i,v){
+			var opt = $('<option></option>')
+			             .attr('value', v.ActivityID)
+						 .text(v.Name);
+			sel.append(opt);
+		});
+		sel.change(function(){
+			pling_chosen($(this).val());
+		});
+	}
+	
+	function pling_chosen(pling_id) {
+		
+
+		var widget = document.createElement('script');
+        widget.src = "/widgets/pbwidget.js";
+        widget.innerHTML = '{pling_id:"'+pling_id+'", widget:"fastfeedback", multiuser:"true"}';
+		
+		$('#pling_chooser_form').remove();
+		
+		document.getElementById('main').appendChild(widget);
+                    
+	}
+	
+	
+	function init(skip_location) {
+		search_sent = 0;
+		$('#main').empty()
+		  .append('<span id="loading">...getting location...</span>');
+		if (!skip_location) {
+			get_location();
+		}
+	}
+
+	
+	init();
+	
+	// Footer Buttons
+	$('#start_over').click(function(){ init();
+	                                   return false;
+									 });
+	$('#manual_entry').click(function(){init(true);
+	                                    request_pling_id();
+	                                    return false;	
+	                                   });
+  </script>
+
+
+<script src="/widgets/pbwidget.js"></script>
+  
+
+  
+  
+</body>
+</html>

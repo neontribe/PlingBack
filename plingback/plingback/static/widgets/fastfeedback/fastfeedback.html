@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>FastFeedback Widget</title>
+		
+		<link id="css-colour" rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="images/green/colours.css"/>
+		<link rel="stylesheet" type="text/css" href="/widgets/fastfeedback/fastfeedback.css"/>
+		<link rel="stylesheet" type="text/css" href="/widgets/libs/jquery.ui.stars.css"/>
+		                     
+		
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+      // Load jQuery
+      google.load("jquery", "1.4.2");
+			google.load("jqueryui", "1.8.1");
+      google.setOnLoadCallback(function() {
+			  ff.configure();
+				ff.api.init();
+				ff.ui.init();	
+			});
+		</script>
+		
+		<script type="text/javascript" src="/widgets/fastfeedback/fastfeedback-bundle.js"></script>
+
+		<script type="text/javascript">		
+		$(document).ready(function() {
+		
+			$(document).ready(function(){
+				$.preloadCssImages();
+			});
+		
+			$('a.help-tip-trigger').live('click', function() {
+                var tipText = $(this).attr('title');
+                var tipBox = $('<div class="help-tip"></div>');
+                tipBox.insertAfter(this);
+                var tipContents = $('<p>'+tipText+'</p><a class="help-tip-close" href="#">x close</a>');
+                tipBox.append(tipContents);
+                tipBox.show();
+                return false;
+            });
+            
+            $('a.help-tip-close').live('click', function() {
+                $(this).parents('div.help-tip').remove();
+            });
+			
+		});
+			
+		</script>
+		
+		
+    </head>
+
+    <body>
+    	<div id="wrapper">
+	    	<div id="header">
+	    		
+	    		<h1>Fast Feedback</h1>
+				<h2>
+				<!--<marquee direction="left" behavior="alternate" scrollamount="2">--> 
+				<span class="pling_name">&nbsp;</span>
+				<!--</marquee>-->
+				</h2>
+				<a id="plings-home" href="http://www.plings.net/search" target="_top"><span>Plings homepage</span></a>
+
+			</div>
+			
+			<div id="content">
+				
+				<div id="navigation">
+					<a href="#attendance"><span></span></a>
+					<a href="#rating_deterrent"><span></span></a>
+					<a href="#comment"><span></span></a>
+					<a href="#reviewer"><span></span></a>
+					<a href="#thankyou"><span></span></a>
+	    		</div>
+				
+				<div id="slides">
+					<div class="slides_container">
+						<div class="load">
+							<span class="loading-cog">&nbsp;</span>
+							Loading...
+						</div>
+						<div class="slide" id="attendance">
+						<h3>Been?</h3>
+						<a href="#nogo" class="help-tip-trigger" title="If you don't want to tell us, click a number to move on."></a>
+							<form action="">
+								<p>
+									<label for="attendance1">
+								        <input id="attendance1" type="radio" name="attendance_value" selected="" value="attended"/>
+										<span>I did go!</span>
+									</label>
+									<label for="attendance2">
+										<input id="attendance2" type="radio" name="attendance_value" selected="" value="didNotAttend"/>
+										<span>I didn't go!</span>
+									</label>
+								</p>
+								<p><input type="hidden" 
+                                            name="feedback_attribute" 
+                                            value="attendance"/></p>
+                                <p><button class="submit" type="submit" disabled="disabled">Done!</button></p>
+							</form>
+						</div>
+						<div class="slide" id="rating_deterrent">
+							<div id="rating">
+								<h3>Rate the activity?</h3>
+                                    <a href="#nogo" class="help-tip-trigger" title="If you change your mind, just click another star or the cross to cancel."></a>
+                                <form action="">
+                                    <div id="stars">
+                                        <div id="stars-wrap">
+                                            <p>
+                                                <input type="radio" name="rating_value" value="20" title="Hated it!"/>
+                                                <input type="radio" name="rating_value" value="40" title="Pointless"/>
+                                                <input type="radio" name="rating_value" value="60" title="Okay"/>
+                                                <input type="radio" name="rating_value" value="80" title="Great"/>
+                                                <input type="radio" name="rating_value" value="100" title="Loved it!"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p id="rate-text" style="clear:both; height:18px">
+                                        <span id="stars-cap">hhh</span>
+                                    </p>
+                                    
+                                    <p><input type="hidden" 
+                                                name="feedback_attribute" 
+                                                value="rating"/></p>
+                                    <p><button style="margin-top:5px;" id="stars-save" class="submit" type="submit" disabled="disabled">Done!</button></p>
+                                </form>
+							</div>
+							<div id="deterrent" style="display:none;">
+								<h3>Why didn't you go?</h3>
+                                <a href="#nogo" class="help-tip-trigger" title="Click as many reasons as you want. You can comment on these in the next slide."></a>
+	                            <form action="">
+									<p style="margin:5px 0 0">
+		                                <label id="deterrent_transport" for="transport"><span><em>Couldn't get there</em></span></label>
+		                                <input id="transport" type="checkbox" name="deterrent_value" value="transport" />
+		                                <label id="deterrent_cost" for="cost"><span><em>Couldn't afford it</em></span></label>
+		                                <input id="cost" type="checkbox" name="deterrent_value" value="cost" />
+		                                <label id="deterrent_publicity" for="publicity"><span><em>Didn't hear about it</em></span></label>
+		                                <input id="publicity" type="checkbox" name="deterrent_value" value="publicity" />
+		                                <label id="deterrent_timing" for="timing"><span><em>Wrong time</em></span></label>
+		                                <input id="timing" type="checkbox" name="deterrent_value" value="timing" />
+		                                <label id="deterrent_apathy" for="apathy"><span><em>Sounded boring</em></span></label>
+		                                <input id="apathy" type="checkbox" name="deterrent_value" value="apathy" />
+		                                <input type="hidden" name="feedback_attribute" value="deterrent"/>
+		                            </p>
+		                            <p id="deterrent-tip" style="clear:both; text-align:center"></p>
+		                            <p class="absolute"><button class="submit" type="submit" disabled="disabled">Save!</button></p>
+	                            </form>
+							</div>
+						</div>
+						
+						
+						<div class="slide" id="deterrent">
+						
+						</div>
+						
+						
+						<div class="slide" id="comment">
+						<h3>Write a comment?</h3>
+						<a href="#nogo" class="help-tip-trigger" title="If you want us to contact you, you'll need to identify yourself in the next stage."></a>
+							<form action="">
+		                        <p><textarea id="comment-on-it" name="comment_value" rows="3" cols="20"></textarea></p>
+								<p><input type="hidden" 
+                                            name="feedback_attribute" 
+                                            value="comment"/></p>
+		                        <p><button class="submit" type="submit" disabled="disabled">Save!</button></p>
+		                    </form>
+						</div>
+						<div class="slide" id="reviewer">
+						<a href="#nogo" class="help-tip-trigger" title="We'll only contact you if you've made a comment that needs us to."></a>
+							<form id="reviewer_form" action="">
+								<div id="unknown_user">
+								<h3>Identify yourself?</h3>
+                                    <p style="margin-top:5px">
+                                        <button id="fb_connect_button" type="button"><span>with your facebook ID</span></button>
+										<button id="email_button" type="button"><span>with your email</span></button>
+										<button id="phone_button" type="button"><span>with your telephone number</span></button>
+										<button id="anon_button" type="button"><span>with 'anonymous'</span></button>
+										<p id="sign-tip" style="display:block; width:200px; clear:both;"></p>
+									</p>
+						            <div id="email-form" class="slidey">
+                                           <label for="email" style="display:none;">Email:</label>
+                                           <input type="email" name="email" id="email" value="Your email" />
+                                    </div>
+									<div id="phone-form" class="slidey">
+                                           <label for="phone" style="display:none;">Phone:</label>
+                                           <input type="text" name="phone" id="phone" value="Your phone" />
+                                    </div>
+									
+									<p id="anonymous-text" class="slidey">Signing as <i>'Anonymous'</i></p>
+								
+						       </div>
+							   <div id="user-info"></div>
+							   <input type="hidden" name="feedback_attribute" value="reviewer"/>
+							   <input type="hidden" name="reviewer_email" value=""/>
+							   <input type="hidden" name="reviewer_phone" value=""/>
+							   <input type="hidden" name="reviewer_id" value=""/>
+							   <input type="hidden" name="reviewer_id_source" value=""/>
+							   <input type="hidden" name="reviewer_birthday" value=""/>
+							   
+							<div id="button-controls">
+							   	<button class="submit" type="submit" disabled="disabled">Save</button>
+							</div>
+							</form>
+                        </div>
+						<div class="slide" id="thankyou">
+                            <h3><a id="thanks" href="http://www.plings.net/search" target="_top"><span>Thanks!</span></a></h3>
+							<p id="the_end">Find more plings at <em><a style="text-decoration:underline" href="http://www.plings.net/search" target="_top">PLINGS.NET</a></em></p>
+                        </div>
+					</div>
+				</div>
+			
+			</div>
+			<div id="footer">
+
+			</div>
+			<div id="bottom">
+			</div>
+		</div>
+		
+		
+        <div id="fb-root"></div>
+        <script type="text/javascript">
+			window.fbAsyncInit = function() {
+                FB.init({appId: ff.fb.app_id, status:false, cookie:false});
+				// fetch the status on load
+                FB.getLoginStatus(ff.fb.handle_session_response, true);
+					
+            };
+			(function() {
+                var e = document.createElement('script'); e.async = true;
+                e.src = document.location.protocol +
+                    '//connect.facebook.net/en_US/all.js';
+                document.getElementById('fb-root').appendChild(e);
+             }());
+  
+</script>
+		
+    </body>
+</html>
+

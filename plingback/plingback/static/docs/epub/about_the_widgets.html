@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Widgets Overview</title>
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="deploy_the_widgets.html" title="Deploying the Widgets"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to the PlingBack Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="section" id="widgets-overview">
+<h1>Widgets Overview</h1>
+<div class="section" id="fastfeedback">
+<h2>FastFeedback</h2>
+<p>Fastfeedback is a box-style widget designed to be included in a page which holds
+details about a pling.</p>
+<img alt="_images/fastfeedback.png" src="_images/fastfeedback.png" />
+<p>The widget is suited to inclusion in sidebars or column layout pages. The widget
+requires a minimum space of 280px by 265px.</p>
+<p>Fastfeedback is designed to suport multiple uses on the same page to gather
+feedback about different plings. The widget prominently displays the title of
+the relevant pling.</p>
+<p>Fastfeedback can be presented in a variety of colour themes (currently green and
+orange).</p>
+<p>The widget uses a sequence of slides to ask its users to provide any/all of the
+following:</p>
+<ul>
+<li><p class="first">Whether or not they attended the activity</p>
+</li>
+<li><p class="first">A rating for the activity (on a 5 star scale)</p>
+</li>
+<li><p class="first">A comment about the activity</p>
+</li>
+<li><dl class="first docutils">
+<dt>A &#8216;signature&#8217; for their feedback, which might be:</dt>
+<dd><ul class="first last simple">
+<li>A mobile phone number</li>
+<li>An email address</li>
+<li>A Facebook account</li>
+<li>Anonymous</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Users can supply any of the above data, which is saved in sections, at the end
+of each individual interaction.</p>
+<p>Fastfeedback also displays a slideshow of inspirational stories intended to
+highlight the effectiveness of giving feedback.</p>
+</div>
+<div class="section" id="topbar">
+<h2>TopBar</h2>
+<p>TopBar is a bar-style widget designed to be displayed across the top of a page
+which contains details of a pling. The occupies a space 65px high and the full
+width of the browser window.</p>
+<img alt="_images/topbar.png" src="_images/topbar.png" />
+<p>TopBar presents a single interface which asks its users to provide any/all of
+the following.</p>
+<ul>
+<li><p class="first">Whether or not they attended the activity</p>
+</li>
+<li><p class="first">A rating for the activity (on a 5 star scale)</p>
+</li>
+<li><p class="first">A comment about the activity</p>
+</li>
+<li><dl class="first docutils">
+<dt>A &#8216;signature&#8217; for their feedback, which might be:</dt>
+<dd><ul class="first last simple">
+<li>A mobile phone number</li>
+<li>An email address</li>
+<li>A Facebook account</li>
+<li>Anonymous</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>As soon as any valid data has been entered the widget exposes its &#8216;send&#8217; button.</p>
+</div>
+<div class="section" id="plingback-button">
+<h2>Plingback Button</h2>
+<p>An alternative presentation of FastFeedback, Plingback Button assists in deploying
+buttons which activate Fastfeedback in a modal site overlay. See <a class="reference internal" href="modal_widgets.html#modal-widgets-label"><em>Modal Presentations For Widgets</em></a></p>
+</div>
+<div class="section" id="groupback">
+<h2>Groupback</h2>
+<p>A version of the Fastfeedback widget has been used in an app designed to help
+gather feedback at an activity by passing a mobile device around participants.
+See <a class="reference internal" href="groupback.html#groupback-label"><em>Groupback - collecting feedback on the spot</em></a></p>
+</div>
+<div class="section" id="greasemonkey-demo">
+<span id="greasemonkey-scripts-label"></span><h2>Greasemonkey Demo</h2>
+<p>If you&#8217;d like to see the widgets in action (or need a starting point for
+developing a script which will let you see the widgets on your own site for
+testing purposes) there are three <strong>Greasemonkey</strong> user scripts available which
+insert the widgets into activity pages on <a class="reference external" href="http://plings.net">http://plings.net</a>. Use the following
+steps to enable the scripts in your copy of Firefox:</p>
+<blockquote>
+<ul class="simple">
+<li>Get <a class="reference external" href="http://getfirefox.com">Firefox</a> if you haven&#8217;t already...</li>
+<li>Install the <a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/748/">Greasemonkey</a> extension</li>
+<li>Load the user script to enable the Fastfeedback widget <a class="reference external" href="http://plingback.appspot.com/widgets/testing/fastfeedback.user.js">http://plingback.appspot.com/widgets/testing/fastfeedback.user.js</a></li>
+<li>Load the user script to enable the Topbar widget <a class="reference external" href="http://plingback.appspot.com/widgets/testing/plingback.user.js">http://plingback.appspot.com/widgets/testing/plingback.user.js</a></li>
+<li>Load the user script to enable the Plingback Button widget <a class="reference external" href="http://plingback.appspot.com/widgets/testing/plingback_button.user.js">http://plingback.appspot.com/widgets/testing/plingback_button.user.js</a></li>
+<li>Visit a plings activity page such as <a class="reference external" href="http://plings.net/a/575002">http://plings.net/a/575002</a></li>
+<li>Disable a couple of the scripts when it all gets a bit overwhelming</li>
+</ul>
+</blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

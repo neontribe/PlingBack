@@ -1,0 +1,52 @@
+#header {
+background:transparent url(header.png) no-repeat left top;	
+}
+
+span.loading-cog {
+background:transparent url(play_button.gif) no-repeat 0 -79px;	
+}
+
+button.submit {
+background:transparent url(play_button.gif) no-repeat 0 0;	
+}
+
+#bottom {
+background:transparent url(footer.png) no-repeat left top;	
+}
+
+#content, #footer {
+border-right:3px solid #8cc63f;
+border-left:3px solid #8cc63f;	
+}
+
+#footer h4 {
+background:url(successes.png) no-repeat top left;
+}
+
+.ui-stars-star a,
+.ui-stars-cancel a {
+background: url(feedback_stars.png) no-repeat 0 0;
+}
+
+.ui-stars-star a {
+background-position: 0 -60px;
+}
+.ui-stars-star-on a {
+background-position: 0 -90px;
+}
+.ui-stars-star-hover a {
+background-position: 0 -120px;
+}
+.ui-stars-cancel-hover a {
+background-position: 0 -30px;
+}
+.ui-stars-star-disabled,
+.ui-stars-star-disabled a,
+.ui-stars-cancel-disabled a {
+cursor: default !important;
+}
+
+a#thanks {
+background:transparent url(thanks.gif) no-repeat left top;		
+}
+

@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Deploying the Widgets &mdash; PlingBack v0.5rc1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PlingBack v0.5rc1 documentation" href="index.html" />
+    <link rel="next" title="Modal Presentations For Widgets" href="modal_widgets.html" />
+    <link rel="prev" title="Widgets Overview" href="about_the_widgets.html" /> 
+  </head>
+  <body>
+ 
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px"> 
+<a href="index.html"><h1>Plingback API</h1></a> 
+</div> 
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modal_widgets.html" title="Modal Presentations For Widgets"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="about_the_widgets.html" title="Widgets Overview"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deploying the Widgets</a><ul>
+<li><a class="reference internal" href="#quickstart">Quickstart</a></li>
+<li><a class="reference internal" href="#additional-configuration-options">Additional Configuration Options</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#fastfeedback">FastFeedback</a></li>
+<li><a class="reference internal" href="#topbar">TopBar</a></li>
+<li><a class="reference internal" href="#stars">Stars</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="about_the_widgets.html"
+                        title="previous chapter">Widgets Overview</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modal_widgets.html"
+                        title="next chapter">Modal Presentations For Widgets</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/deploy_the_widgets.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="deploying-the-widgets">
+<h1>Deploying the Widgets<a class="headerlink" href="#deploying-the-widgets" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>The Plingback widgets can be included in any HTML page through the use of a
+single script element. The minimal example below will serve to illustrate the
+required options.</p>
+<blockquote>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://plingback.appspot.com/widgets/pbwidget.js&quot;</span><span class="nt">&gt;</span>
+         <span class="p">{</span><span class="nx">pling_id</span><span class="o">:</span><span class="s2">&quot;452820&quot;</span><span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+</blockquote>
+<p>The script element&#8217;s src attribute points to a script at
+<a class="reference external" href="http://plingback.appspot.com/widgets/pbwidget.js">http://plingback.appspot.com/widgets/pbwidget.js</a> which is responsible for
+examining the supplied configuration and inserting the correct widget.</p>
+<p>The content of the script element is a set of key names and values in JSON
+format. Only one key/value pair is required:</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">pling_id</span></tt> - is a required option which sets up the widget to store
+feedback for a specific activity. The id for a particular activity can be
+found in the url of the activity&#8217;s page on <a class="reference external" href="http://plings.net">http://plings.net</a>.</p>
+<p>For example, the activity &#8216;Horning Youth Venture&#8217; can be found at
+<a class="reference external" href="http://www.plings.net/a/452820">http://www.plings.net/a/452820</a> - its <tt class="docutils literal"><span class="pre">pling_id</span></tt> is 452820</p>
+<p>It is imagined that, in the vast majority of cases, the <tt class="docutils literal"><span class="pre">pling_id</span></tt> will
+be inserted by the Content Management System which hosts the page.</p>
+</blockquote>
+<p>A modal presentation - where the widget is invoked by button click and shown on
+a modal overlay is also supported: See <a class="reference internal" href="modal_widgets.html#modal-widgets-label"><em>Modal Presentations For Widgets</em></a></p>
+</div>
+<div class="section" id="additional-configuration-options">
+<h2>Additional Configuration Options<a class="headerlink" href="#additional-configuration-options" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">widget</span></tt> - chooses which widget will be inserted in the page. The default
+value is &#8216;topbar&#8217;. Currently supported values are:</p>
+<blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">topbar</span></tt> will insert the Topbar widget immediately after the</dt>
+<dd><p class="first last">document&#8217;s opening body tag.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">fastfeedback</span></tt> will insert a FastFeedback widget at the point in</dt>
+<dd><p class="first last">the document where the script element appears</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">stars</span></tt> will insert a star rating widget at the point in</dt>
+<dd><p class="first last">the document where the script element appears</p>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+<p><tt class="docutils literal"><span class="pre">skin_color</span></tt> - <strong>Fastfeedback widget only</strong> - chooses the dominant colour
+for the widget&#8217;s styling. The default value is &#8216;green&#8217;. Currently supported
+values are:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">green</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">orange</span></tt></li>
+</ul>
+</blockquote>
+<p><tt class="docutils literal"><span class="pre">iframe_style</span></tt> - The default styling of the iframe which pbwidget.js
+inserts in the page can be replaced by any valid css style supplied through
+this option. NB: the minimum width and height for correct display of the
+widgets is as follows:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">topbar</span></tt>: 100% x 65px</li>
+<li><tt class="docutils literal"><span class="pre">fastfeedback</span></tt>: 280px x 380px</li>
+<li><tt class="docutils literal"><span class="pre">stars</span></tt>: 220px x 50px</li>
+</ul>
+</blockquote>
+<p><tt class="docutils literal"><span class="pre">base_url</span></tt> - Overrides the base url used to derive the location of widget
+resources and the Plingback Input API. The default is
+&#8216;<a class="reference external" href="http://plingback.appspot.com">http://plingback.appspot.com</a>&#8216;</p>
+<p><tt class="docutils literal"><span class="pre">thanks_url</span></tt> - If a url is specified under this key a link will be placed
+on the widget&#8217;s &#8216;Thank You&#8217; slide (which appears after all feedback submissions
+have been completed).</p>
+</blockquote>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fastfeedback">
+<h3>FastFeedback<a class="headerlink" href="#fastfeedback" title="Permalink to this headline">¶</a></h3>
+<p>The following snippet renders a Fastfeedback widget for the pling &#8220;Arsenal Kickz
+Football&#8221; (575002), using the orange theme and adding a two pixel border to the
+iframe</p>
+<blockquote>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://plingback.appspot.com/widgets/pbwidget.js&quot;</span><span class="nt">&gt;</span>
+         <span class="p">{</span><span class="nx">pling_id</span><span class="o">:</span><span class="s2">&quot;575002&quot;</span><span class="p">,</span>
+          <span class="nx">widget</span><span class="o">:</span><span class="s2">&quot;fastfeedback&quot;</span><span class="p">,</span>
+          <span class="nx">skin_color</span><span class="o">:</span><span class="s2">&quot;orange&quot;</span><span class="p">,</span>
+          <span class="nx">iframe_style</span><span class="o">:</span><span class="s2">&quot;border: 2px black; width: 280px; height: 380px; overflow-y: hidden; overflow-x: hidden;&quot;</span><span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+</blockquote>
+</div>
+<div class="section" id="topbar">
+<h3>TopBar<a class="headerlink" href="#topbar" title="Permalink to this headline">¶</a></h3>
+<p>The following snippet renders a TopBar widget for the pling &#8220;Arsenal Kickz
+Football&#8221; (575002)</p>
+<blockquote>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://plingback.appspot.com/widgets/pbwidget.js&quot;</span><span class="nt">&gt;</span>
+         <span class="p">{</span><span class="nx">pling_id</span><span class="o">:</span><span class="s2">&quot;575002&quot;</span><span class="p">,</span>
+          <span class="nx">widget</span><span class="o">:</span><span class="s2">&quot;topbar&quot;</span><span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+</blockquote>
+</div>
+<div class="section" id="stars">
+<h3>Stars<a class="headerlink" href="#stars" title="Permalink to this headline">¶</a></h3>
+<p>The following snippet renders a Stars widget for the pling &#8220;Arsenal Kickz
+Football&#8221; (575002)</p>
+<blockquote>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://plingback.appspot.com/widgets/pbwidget.js&quot;</span><span class="nt">&gt;</span>
+         <span class="p">{</span><span class="nx">pling_id</span><span class="o">:</span><span class="s2">&quot;575002&quot;</span><span class="p">,</span>
+          <span class="nx">widget</span><span class="o">:</span><span class="s2">&quot;stars&quot;</span><span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modal_widgets.html" title="Modal Presentations For Widgets"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="about_the_widgets.html" title="Widgets Overview"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li> 
+        <li><a href="search.html">search</a>|&nbsp;</li> 
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Neontribe Ltd (rupert).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0b2.
+    </div>
+  </body>
+</html>

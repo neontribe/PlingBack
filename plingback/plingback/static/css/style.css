@@ -1,0 +1,25 @@
+
+body {
+    font-family:"BlackoutMidnight","Trebuchet MS",trebuchet,sans-serif;
+    background:#666666 url(../images/bodyback.gif) repeat-x scroll left top; 
+    }
+
+/*BASIC ELEMENTS*/
+h1 {color: #7ac142; font-size: 40px;}
+h2 {color: #FFA405; border-bottom: solid grey 2px;}
+h3 {color: #424242; margin: 20px 0px -10px 0px;}
+a { color:#7ac142; font-weight:bold; }
+a:hover { border:0; text-decoration:none;}
+strong { color: #424242; }
+p { } 
+img.left {float: left;}
+img.right {float: right;}
+img.logo {margin: -15px 10px 0 0;}
+form {background: #fff; padding: 10px; border: solid grey 1px;}
+.textfield {background: #F8ECE0; padding: 1px;}
+
+/*LAYOUT*/
+div#wrapper { width:760px; margin:0 auto; }
+div#header { background: #ECF8E0; height:80px; margin: 20px 0 0 0; padding: 20px;}
+div#content { background: #ECF8E0; min-height: 200px; padding: 10px 30px 20px 20px; }
+div#footer { font-size: small; height:70px; text-align:center; padding:10px 0 0 0px; color:#999; clear: both; }
