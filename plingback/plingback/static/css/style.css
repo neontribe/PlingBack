@@ -1,7 +1,7 @@
 
 body {
     font-family:"BlackoutMidnight","Trebuchet MS",trebuchet,sans-serif;
-    background:#666666 url(../images/bodyback.gif) repeat-x scroll left top; 
+    background:#666666 url(/images/bodyback.gif) repeat-x scroll left top; 
     }
 
 /*BASIC ELEMENTS*/

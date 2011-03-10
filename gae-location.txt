@@ -1,2 +1,0 @@
-# This file contains the path to the GAE SDK:
-/home/rupert/google_appengine

@@ -108,6 +108,14 @@ def main(global_config, **settings):
                      'plingback.views.index', 
                      view_renderer='plingback:templates/index.mak')
     
+    # Render an html view of a single feedback node
+    config.add_route('feedback_view',
+                     '/views/plingbacks/{feedback_id}.html',
+                     view='plingback.views.feedback_view',
+                     view_renderer='plingback:templates/feedback_view.mak',
+                     request_method='GET',
+                     factory=TripleStore)
+    
     # Route to static resources
     config.add_route('catchall_static', '/*subpath', 'plingback.static_view')
     

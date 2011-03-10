@@ -1,9 +1,0 @@
-#!/home/rupert/aptana-git/PlingBack/bin/python
-# EASY-INSTALL-ENTRY-SCRIPT: 'rdfextras==0.1a','console_scripts','rdfpipe'
-__requires__ = 'rdfextras==0.1a'
-import sys
-from pkg_resources import load_entry_point
-
-sys.exit(
-   load_entry_point('rdfextras==0.1a', 'console_scripts', 'rdfpipe')()
-)

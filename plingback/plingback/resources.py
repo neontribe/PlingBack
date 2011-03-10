@@ -1,7 +1,7 @@
 import urllib
 import urllib2
 import simplejson as json
-from talis import Talis
+from plingbacks.stores.talis import Talis
 from rdflib import ConjunctiveGraph as Graph
 from rdfextras.sparql.query import SPARQLQueryResult
 from pyramid.interfaces import IDebugLogger
