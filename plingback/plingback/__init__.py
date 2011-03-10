@@ -1,6 +1,9 @@
 from pyramid.config import Configurator
 from plingback.resources import TripleStore
 
+from pyramid.view import static
+static_view = static('plingback:static')
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -100,8 +103,13 @@ def main(global_config, **settings):
                      request_method='GET',
                      factory=TripleStore)
     
+    # Routing for rendered html responses
+    config.add_route('index', '/', 
+                     'plingback.views.index', 
+                     view_renderer='plingback:templates/index.mak')
+    
     # Route to static resources
-    config.add_static_view('static', 'plingback:static')
+    config.add_route('catchall_static', '/*subpath', 'plingback.static_view')
     
     return config.make_wsgi_app()
 
