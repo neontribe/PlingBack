@@ -40,7 +40,7 @@ except ImportError:
 
 __all__ = ['Talis']
 
-USER_AGENT = 'CKAN-RDF 1.0'
+USER_AGENT = 'TALIS PYTHON MODULE (PLINGBACK version 0.2)'
 
 #RDF = Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
 CS = Namespace('http://purl.org/vocab/changeset/schema#')
@@ -112,6 +112,7 @@ class Talis(object):
 		changes = self._changesets.get(s, [])
 		changes.append(["addition", p, o])
 		self._changesets[s] = changes
+        
 	def remove(self, statement):
 		"""
 		Remove a statement from the triplestore

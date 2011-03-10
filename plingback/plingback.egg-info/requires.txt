@@ -1,6 +1,10 @@
 pyramid
 WebError
-webtest
 rdflib
 rdfextras
+webtest
 pyparsing
+coverage
+simplejson
+elementtree
+statlib

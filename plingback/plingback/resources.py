@@ -1,7 +1,7 @@
 import urllib
 import urllib2
 import simplejson as json
-from plingbacks.stores.talis import Talis
+from plingback.stores.talis import Talis
 from rdflib import ConjunctiveGraph as Graph
 from rdfextras.sparql.query import SPARQLQueryResult
 from pyramid.interfaces import IDebugLogger
@@ -16,7 +16,7 @@ class TripleStore(object):
         self.logger = q(IDebugLogger)
 
         if self.request.registry.settings:
-            if (self.request.registry.settings['store_type'] == 'talis'):
+            if (self.request.registry.settings.get('store_type',None) == 'talis'):
                 # Configure a connection to the talis store
                 self.store = Talis(self.request.registry.settings['talis_store'],
                                self.request.registry.settings['talis_user'],
