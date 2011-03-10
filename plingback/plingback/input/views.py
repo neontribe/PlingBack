@@ -10,11 +10,7 @@ import datetime
 
 from plingback.namespaces import namespaces as ns
 from plingback.triples import make_feedback_uri, TripleFactory
-from webob.exc import HTTPUnauthorized
-
-ID_POOL_SIZE = 20
-ID_CANDIDATE_LIMIT = 3
-MAX_ID_ATTEMPTS = 3                 
+from webob.exc import HTTPUnauthorized                 
 
 def create(request): #self, feedback_id=None, method=None):
     """POST /api/plingbacks: Create a new feedback node generating an id
