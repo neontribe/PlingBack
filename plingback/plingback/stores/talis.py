@@ -32,6 +32,7 @@ from rdflib import ConjunctiveGraph as Graph
 from rdflib import BNode, URIRef, Literal, Namespace, RDF
 from rdflib.term import XSDToPython
 import uuid
+import StringIO
 
 try:
 	from etree import ElementTree
@@ -216,53 +217,114 @@ class Talis(object):
 			self.log.error("Error in post to %s:\n%s" % (url, traceback.format_exc()))
 			raise
 		return response
-
+	
 	def query(self, query, initNs = None):
-		r"""
+		self.sync()
+		defaultNs = {
+			'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+			'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+			'xsd': 'http://www.w3.org/2001/XMLSchema#',
+			'dc': 'http://purl.org/dc/terms/'
+		}
+		ns = defaultNs.copy()
+		if initNs:
+			ns.update(initNs)
+			
+		query = "\n".join(map(lambda x: "PREFIX %s: <%s>" % x, ns.items())) + "\n" + query
+		
+		self.log.debug("SPARQL Query:\n%s" % (query,))
+		###
+		### prepare the HTTP request
+		###
+		url = self.urlbase + "/services/sparql"
+		headers = {
+			'User-Agent': USER_AGENT,
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Accept': 'application/xml'
+		}
+		data = urllib.urlencode({'query': query, 'output': 'xml'})
+		req = urllib2.Request(url, data, headers)
+		try:
+			t0 = datetime.now()
+			fp = self.get_urlopener()(req)
+			response = fp.read()
+			fp.close()
+			t1 = datetime.now()
+			self.log.info("SPARQL Query took %s" % (t1-t0,))
+			self.log.debug("SPARQL Result:\n%s" % (response,))
+		except urllib2.HTTPError, e:
+			self.log.error("HTTP Response %s: %s" % (e.code, e.msg))
+			if e.message:
+				self.log.error("%s" % (e.message,))
+			raise
+		except:
+			self.log.error("Error in post to %s:\n%s" % (url, traceback.format_exc()))
+			raise
+		
+		###
+		### parse the result using ElementTree
+		###
+		tree = ElementTree.fromstring(response)
+		
+		###
+		### Fork here to handle the differing output from DESCRIBE and CONSTRUCT vs SELECT
+		###
+		
+		if tree.tag.endswith('RDF'):
+			graph = Graph()
+			graph.parse(StringIO.StringIO(response))
+			for x in graph:
+				yield(x)
+		else:
+	 		### SELECT RESULTS
+			sparql_ns = "http://www.w3.org/2005/sparql-results#"	
+			head = "{%s}head" % (sparql_ns,)
+			binding = "{%s}binding" % (sparql_ns,)
+			variable =  "{%s}variable" % (sparql_ns,)
+			result = "{%s}result" % (sparql_ns,)
+			results = "{%s}results" % (sparql_ns,)
+			uri = "{%s}uri" % (sparql_ns,)
+			literal = "{%s}literal" % (sparql_ns,)
+			###
+			### find the list of bound output variables
+			###
+			variables = map(lambda x: x.get("name"), tree.findall("%s/%s" % (head, variable)))
+			###
+			### iterate through the results and yield them
+			###
+			res = []
+			for r in tree.findall("%s/%s" % (results, result)):
+				row = {}
+				for b in r.findall(binding):
+					v = b.getchildren()[0]
+					if v.tag == uri:
+						value = URIRef(v.text)
+					elif v.tag == literal:
+						datatype = v.get("datatype")
+						if datatype:
+							dturi = URIRef(datatype)
+							value = Literal(XSDToPython[dturi](v.text), datatype=dturi)
+						else:
+							value = Literal(v.text)
+					row[b.get("name")] = value
+					res.append(map(lambda x: row[x], variables)	)
+				yield map(lambda x: row[x], variables)	
+				
+		
+
+	def query22(self, query, initNs = None):
+		"""
 		Execute a SPARQL query against the triplestore and
 		return a generator for result rows. The results are
 		returned in a form similar to that of an rdflib graph,
 		namely a list of bound variables.
-
-		The contents of initNs should be a dictionary with
-		namespace prefixes. The default value is 
-
-			{
-				'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-				'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
-				'xsd': 'http://www.w3.org/2001/XMLSchema#',
-				'dc': 'http://purl.org/dc/terms/'
-			}
-
-		and these values will be added to any initNs passed in.
-		The contents of the resulting  dictionary are prepended
-		to the query before it is sent to the server.
-
-		>>> initNs = {
-		...    'scv': 'http://purl.org/NET/scovo#',
-		...    'cra': 'http://www.ckan.net/package/ukgov-finances-cra#'
-		... }
-		>>> t = Talis("ckan-dev1")
-		>>> q = '\
-		... SELECT SUM(?amount) { \n\
-		...     ?scotland a cra:Area . \n\
-		...     ?scotland dc:spatial "SCOTLAND" . \n\
-		...     ?exp cra:area ?scotland . \n\
-		...     ?exp a cra:Expenditure . \n\
-		...     ?exp rdf:value ?amount \n\
-		... }'
-		>>> for amount, in t.query(q, initNs=initNs):
-		...     print amount
-		...
-		329687.94
-		>>>
 		"""
 		###
 		### first make sure any unapplied changes have been applied
 		### to the remote store
 		###
 		self.sync()
-
+		
 		###
 		### prepare the query
 		###
