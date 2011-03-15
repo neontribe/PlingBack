@@ -1,6 +1,8 @@
 from pyramid.config import Configurator
 from plingback.resources import TripleStore
 
+
+
 from pyramid.view import static
 static_view = static('plingback:static')
 

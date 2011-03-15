@@ -34,7 +34,8 @@ class TripleStore(object):
         if self.debug_sparql:
             msg = (sparql)
             self.logger and self.logger.debug(msg)
-            
+        
+
         res = self.store.query(sparql)
         
         # If we're working with a local rdflib graph we'll need to delve to get the results
