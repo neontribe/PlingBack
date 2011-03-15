@@ -4,7 +4,6 @@ setup.py
 plingback/__init__.py
 plingback/namespaces.py
 plingback/resources.py
-plingback/tests.py
 plingback/views.py
 plingback.egg-info/PKG-INFO
 plingback.egg-info/SOURCES.txt
@@ -28,6 +27,10 @@ plingback/sparql/__init__.py
 plingback/sparql/tests.py
 plingback/stores/__init__.py
 plingback/stores/talis.py
+plingback/tests/__init__.py
+plingback/tests/tests.py
+plingback/tests/integration_tests/__init__.py
+plingback/tests/integration_tests/tests.py
 plingback/triples/__init__.py
 plingback/triples/helpers.py
 plingback/triples/tests.py

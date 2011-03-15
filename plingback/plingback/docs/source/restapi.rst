@@ -348,7 +348,7 @@ the data originated as a radiowaves comment we might use curl as below
                        &submission_date=2011-03-03T14%3A40%3A50" 
              http://plingback.appspot.com/api/plingbacks
   
-To examine the result you can currently visit http://plingback.appspot.com/api/plingbacks/<feedback_id>.html
+To examine the result you can currently visit http://plingback.appspot.com/views/plingbacks/<feedback_id>.html
 Where `feedback_id` can be found in the JSON returned by the api to confirm success.
 
 The "Attending" and "Maybe Attending" records from radiowaves can be modelled using the 

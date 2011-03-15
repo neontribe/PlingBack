@@ -1,6 +1,7 @@
 from plingback.namespaces import namespaces
 from plingback.sparql import SPARQLGenerator
 import json
+from pyramid.httpexceptions import HTTPNotFound
 
 def index(request):
     root_url = request.registry.settings.get('root_url', '')
@@ -35,8 +36,10 @@ def feedback_view(request):
             nd1['name'] = triple[2]
             nd1['id'] = triple[2]
             nodes[triple[2]] = nd1
+    
+    if not nodes:
+        raise HTTPNotFound()
         
-    json.dumps(nodes.values(), sort_keys=True, indent=4)
     
     return {'feedback_id':feedback_id,
             'nodes_json':json.dumps(nodes.values(), sort_keys=True, indent=4)}

@@ -7,9 +7,16 @@ class FunctionalTests(unittest.TestCase):
         from plingback import main
         app = main({}, **({'store_type':'rdflib',
                            'debug_sparql':False,
-                            'enable_delete':True}))
+                            'enable_delete':True,
+                            'root_url':'http://testing.com',
+                            'mako.directories':'plingback:templates'}))
         from webtest import TestApp
         self.testapp = TestApp(app)
+        
+    def test_index_view(self):
+        res = self.testapp.get('/')
+        res.mustcontain('http://testing.com')
+
 
     def test_input_bare_post(self):
         """ Posts without a feedback target identifier should fail"""
