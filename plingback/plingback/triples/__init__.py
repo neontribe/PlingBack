@@ -6,6 +6,7 @@ from plingback.namespaces import namespaces as ns
 from plingback.triples.helpers import CommentAttribute, RatingAttribute, ReviewerAttribute, \
                                       AttendanceAttribute, DeterrentAttribute, ApprovalAttribute
 from plingback.triples.helpers import make_feedback_uri
+from plingback.sparql import SPARQLGenerator
 
 
 
@@ -69,33 +70,38 @@ class TripleFactory(object):
     
     def remove_feedback_node(self):
 
-        query = """
-            PREFIX pbo: <%s> 
-            PREFIX rdf: <%s> 
-            PREFIX dc: <%s> 
-            PREFIX rev: <%s>
-            CONSTRUCT { <%s> rdf:type ?type .
-                        <%s> pbo:isAbout ?pling .
-                        <%s> dc:date ?date .
-                        <%s> pbo:plingBackType ?pbt .
-                        <%s> pbo:plingBackVersion ?version .
-                        ?pling rev:hasReview <%s> .
-                      } 
-            WHERE { <%s> rdf:type ?type .
-                    <%s> pbo:isAbout ?pling .
-                    <%s> dc:date ?date .
-                    <%s> pbo:plingBackType ?pbt .
-                    OPTIONAL { 
-                       <%s> pbo:plingBackVersion ?version .
-                      }
-            }"""
-            
-        query = query % (str(ns['PBO']), str(ns['RDF']), str(ns['DC']), str(ns['REV']),
-                 self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri,
-                 self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri, 
-                 self.feedback_uri, self.feedback_uri, self.feedback_uri)
+        #=======================================================================
+        # query = """
+        #    PREFIX pbo: <%s> 
+        #    PREFIX rdf: <%s> 
+        #    PREFIX dc: <%s> 
+        #    PREFIX rev: <%s>
+        #    CONSTRUCT { <%s> rdf:type ?type .
+        #                <%s> pbo:isAbout ?pling .
+        #                <%s> dc:date ?date .
+        #                <%s> pbo:plingBackType ?pbt .
+        #                <%s> pbo:plingBackVersion ?version .
+        #                ?pling rev:hasReview <%s> .
+        #              } 
+        #    WHERE { <%s> rdf:type ?type .
+        #            <%s> pbo:isAbout ?pling .
+        #            <%s> dc:date ?date .
+        #            <%s> pbo:plingBackType ?pbt .
+        #            OPTIONAL { 
+        #               <%s> pbo:plingBackVersion ?version .
+        #              }
+        #    }"""
+        #    
+        # query = query % (str(ns['PBO']), str(ns['RDF']), str(ns['DC']), str(ns['REV']),
+        #         self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri,
+        #         self.feedback_uri, self.feedback_uri, self.feedback_uri, self.feedback_uri, 
+        #         self.feedback_uri, self.feedback_uri, self.feedback_uri)
+        #=======================================================================
+
         
-        triples = [x for x in self.context.query(query)]
+        sparql = SPARQLGenerator('remove_feedback_node', id=self.feedback_uri).sparql()
+        
+        triples = [x for x in self.context.query(sparql)]
         for triple in triples:
             self.context.store.remove(triple)
         

@@ -12,6 +12,7 @@ rdflib.plugin.register('sparql', rdflib.query.Result,
 from webob.multidict import MultiDict
 from pyramid import testing
 from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalServerError
+from pyramid.mako_templating import MakoLookupTemplateRenderer, renderer_factory as mako_renderer_factory
 
 
 from plingback.triples import TripleFactory
@@ -24,6 +25,8 @@ from plingback.resources import TripleStore
 class TripleFactoryTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
+        self.config.add_settings({'mako.directories':'plingback.sparql:templates'})
+        self.config.add_renderer(None, mako_renderer_factory)
         self.config.begin()
 
     def tearDown(self):

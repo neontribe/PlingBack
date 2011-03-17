@@ -29,8 +29,8 @@ plingback/stores/__init__.py
 plingback/stores/talis.py
 plingback/tests/__init__.py
 plingback/tests/tests.py
-plingback/tests/integration_tests/__init__.py
-plingback/tests/integration_tests/tests.py
+plingback/tests/functional_tests/__init__.py
+plingback/tests/functional_tests/tests.py
 plingback/triples/__init__.py
 plingback/triples/helpers.py
 plingback/triples/tests.py

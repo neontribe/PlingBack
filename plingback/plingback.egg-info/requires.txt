@@ -1,6 +1,6 @@
 pyramid
 WebError
-rdflib
+rdflib>=3.0.0
 rdfextras
 webtest
 pyparsing

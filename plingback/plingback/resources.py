@@ -35,7 +35,12 @@ class TripleStore(object):
             msg = (sparql)
             self.logger and self.logger.debug(msg)
         
-
+        #if isinstance(self.store, Graph) and "DESCRIBE" in sparql:
+        #    """ rdflib currently requires a hack for describe queries involving literals """
+        #    res = [x for x in self.store if not 'http://plings.net/' in str(x[0])]
+        ##    import pdb
+        #    pdb.set_trace()
+        #else:
         res = self.store.query(sparql)
         
         # If we're working with a local rdflib graph we'll need to delve to get the results

@@ -2,7 +2,7 @@ import unittest
 import simplejson as json
 from pyramid.httpexceptions import *
 
-class FunctionalTests(unittest.TestCase):
+class IntegrationTests(unittest.TestCase):
     def setUp(self):
         from plingback import main
         app = main({}, **({'store_type':'rdflib',

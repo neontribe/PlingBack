@@ -1,5 +1,6 @@
 from pyramid.interfaces import IDebugLogger
 from pyramid.httpexceptions import HTTPException, HTTPBadRequest, HTTPInternalServerError, HTTPNoContent
+from pyramid.exceptions import NotFound, Forbidden
 
 from rdflib import BNode, Literal, URIRef, Namespace
 import simplejson as json
@@ -21,12 +22,15 @@ def create(request): #self, feedback_id=None, method=None):
     if not request.params.get('pling_id'):
         raise HTTPBadRequest(detail='the request should specify a pling_id')
     
+    overwrite = False
     if request.method.lower() == 'get':
         mode = request.matchdict.get('method').upper()
         if mode not in ['POST', 'PUT']:
             raise HTTPBadRequest(detail='To use the jsapi you must specify PUT or POST as the second path element')
         else:
             request.method = mode
+    if request.method == 'PUT':
+        overwrite = True
 
     #Arbitrate between POST and PUT requests
     if request.method.lower() == 'post':
@@ -43,7 +47,10 @@ def create(request): #self, feedback_id=None, method=None):
     
     tf = TripleFactory(request, feedback_id)
     #Build the feedback node into the local graph
-    init = tf.init_feedback_node()
+    tf.init_feedback_node()
+    
+    # Add any attributes
+    tf.add_attribute(overwrite=overwrite)
     
     
     # Commit the changes to the store
@@ -94,6 +101,6 @@ def delete(request):
         return HTTPNoContent()
         
     else:
-        raise HTTPUnauthorized()
+        raise Forbidden()
 
 

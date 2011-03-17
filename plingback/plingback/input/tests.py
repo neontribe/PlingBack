@@ -4,10 +4,15 @@ from pyramid.config import Configurator
 from pyramid import testing
 from pyramid.registry import Registry 
 from pyramid.mako_templating import MakoLookupTemplateRenderer, renderer_factory as mako_renderer_factory
-
+from pyramid.exceptions import NotFound, Forbidden
 from plingback.resources import TripleStore
 from plingback.input.views import *
 
+import rdflib
+rdflib.plugin.register('sparql', rdflib.query.Processor,
+                       'rdfextras.sparql.processor', 'Processor')
+rdflib.plugin.register('sparql', rdflib.query.Result,
+                       'rdfextras.sparql.query', 'SPARQLQueryResult')
 
 class InputControllerTests(unittest.TestCase):
     use_jsapi = False
@@ -17,7 +22,8 @@ class InputControllerTests(unittest.TestCase):
         reg.settings = {'store_type':'rdflib',
                         'debug_sparql':True}
         self.config = testing.setUp(reg)
-        
+        self.config.add_settings({'mako.directories':'plingback.sparql:templates'})
+        self.config.add_renderer(None, mako_renderer_factory)
         self.config.begin()
 
     def tearDown(self):
@@ -73,6 +79,17 @@ class InputControllerTests(unittest.TestCase):
                                     'POST')
         res = create(request)
         self.assertEqual(request.response_status, '201 Created')
+        self.assertEqual(len([x for x in request.context.store]), 6)
+        
+    def test_create_with_attribute(self):
+        params = self.mock_params({'feedback_attribute':'rating',
+                                   'rating_value':'70'})
+        request = self.mock_request('/api/plingbacks',
+                                    params,
+                                    'POST')
+        res = create(request)
+        self.assertEqual(request.response_status, '201 Created')
+        self.assertEqual(len([x for x in request.context.store]), 7)
         
     def test_create_missing_pling_id(self):
         params = self.mock_params()
@@ -91,6 +108,7 @@ class InputControllerTests(unittest.TestCase):
                                     '888-999-111')
         res = attribute_handler(request)
         self.failUnless('888-999-111' in str(res))
+        self.assertEqual(len([x for x in request.context.store]), 1)
         
     def test_delete_attribute(self):
         self.config.add_settings({'enable_delete':True})
@@ -108,7 +126,7 @@ class InputControllerTests(unittest.TestCase):
                                     params,
                                     'DELETE',
                                     '999-999-111')
-        self.assertRaises(HTTPUnauthorized, delete, request)
+        self.assertRaises(Forbidden, delete, request)
         
 class JSAPITests(InputControllerTests):
     """ Repeat all the input api test through the JSAPI layer"""

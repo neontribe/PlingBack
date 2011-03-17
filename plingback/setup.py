@@ -8,7 +8,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = ['pyramid', 
             'WebError', 
-            'rdflib', 
+            'rdflib>=3.0.0', 
             'rdfextras', 
             'webtest',
             'pyparsing',
